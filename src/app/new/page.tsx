@@ -1,6 +1,7 @@
 ﻿'use client'
 
 import React, { useState, ChangeEvent, FormEvent } from 'react';
+import { v4 as uuid } from 'uuid';
 import CustomerInfoForm, { facilityOwnerFields, representativeFields } from './CustomerInfoForm';
 import FileUploadBox from './FileUploadBox';
 import CollapsibleSection from '@/components/collapsible-section';
@@ -21,7 +22,36 @@ export default function NewRFJob() {
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
-        console.log({ facilityOwnerInfo, representativeInfo, pdfs, jobType });
+
+        // Generate a unique job ID
+        const jobId = uuid();
+        const creationDate = new Date().toISOString();
+        
+        // Construct the job data object
+        const jobData = {
+            jobId,
+            creationDate,
+            jobType,
+            facilityOwnerInfo,
+            representativeInfo,
+            pdfs: pdfs.map(file => file.name), // Include only file names
+        };
+
+        // Convert the data to JSON
+        const jsonData = JSON.stringify(jobData, null, 2);
+
+        // Create a blob and download the JSON file
+        const blob = new Blob([jsonData], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+
+        // Create a temporary link and trigger download
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${jobId}.rfjson`;
+        link.click();
+
+        // Clean up
+        URL.revokeObjectURL(url);
     };
 
     return (
@@ -39,7 +69,9 @@ export default function NewRFJob() {
                             </div>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="space-y-6">
+                        <JobTypeSelector selectedJobType={jobType} onChange={setJobType} />
+
+                        <form onSubmit={handleSubmit} className="space-y-4">
                             <CollapsibleSection title="Facility Owner Details">
                                 <CustomerInfoForm
                                     fields={facilityOwnerFields}
@@ -57,8 +89,6 @@ export default function NewRFJob() {
                             </CollapsibleSection>
 
                             <FileUploadBox pdfs={pdfs} onUpdateFiles={setPdfs} />
-
-                            <JobTypeSelector selectedJobType={jobType} onChange={setJobType} />
 
                             <div className="card-actions justify-end">
                                 <button type="submit" className="btn btn-primary">
