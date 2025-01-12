@@ -13,7 +13,7 @@ const JobTypeSelector: React.FC<JobTypeSelectorProps> = ({ selectedJobType, onCh
     };
 
     return (
-        <div className="form-control w-full">
+        <div className="form-control w-full mb-2">
             <label className="label">
                 <span className="text-xl font-semibold">Job Type</span>
             </label>
