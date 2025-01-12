@@ -47,7 +47,7 @@ export default function NewRFJob() {
         // Create a temporary link and trigger download
         const link = document.createElement('a');
         link.href = url;
-        link.download = `${jobId}.json`;
+        link.download = `${jobId}.rfjson`;
         link.click();
 
         // Clean up
