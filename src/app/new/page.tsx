@@ -1,8 +1,8 @@
 ﻿'use client'
 
-import React, { useState, ChangeEvent, FormEvent } from 'react';
-import { v4 as uuid } from 'uuid';
-import CustomerInfoForm, { facilityOwnerFields, representativeFields } from './CustomerInfoForm';
+import React, {ChangeEvent, FormEvent, useState} from 'react';
+import {v4 as uuid} from 'uuid';
+import CustomerInfoForm, {facilityOwnerFields, representativeFields} from './CustomerInfoForm';
 import FileUploadBox from './FileUploadBox';
 import CollapsibleSection from '@/components/collapsible-section';
 import JobTypeSelector from './JobTypeSelector';
@@ -16,42 +16,42 @@ export default function NewRFJob() {
 
     const handleInfoChange = (setter: React.Dispatch<React.SetStateAction<Record<string, string>>>) =>
         (e: ChangeEvent<HTMLInputElement>) => {
-            const { name, value } = e.target;
-            setter(prev => ({ ...prev, [name]: value }));
+            const {name, value} = e.target;
+            setter(prev => ({...prev, [name]: value}));
         };
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
 
-        // Generate a unique job ID
-        const jobId = uuid();
-        const creationDate = new Date().toISOString();
-        
         // Construct the job data object
         const jobData = {
-            jobId,
-            creationDate,
-            jobType,
-            facilityOwnerInfo,
-            representativeInfo,
-            pdfs: pdfs.map(file => file.name), // Include only file names
+            metadata: {
+                jobId: uuid(),
+                creationDate: new Date().toISOString(),
+                jobType
+            },
+            customerInformation: {
+                facilityOwnerInfo,
+                representativeInfo
+            },
+            pdfs: pdfs.map(file => file.name)
         };
 
         // Convert the data to JSON
         const jsonData = JSON.stringify(jobData, null, 2);
 
         // Create a blob and download the JSON file
-        const blob = new Blob([jsonData], { type: 'application/json' });
+        const blob = new Blob([jsonData], {type: 'application/json'});
         const url = URL.createObjectURL(blob);
 
-        // Create a temporary link and trigger download
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `${jobId}.rfjson`;
-        link.click();
-
-        // Clean up
-        URL.revokeObjectURL(url);
+        try {
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${jobData.metadata.jobId}.rfjson`;
+            link.click();
+        } finally {
+            URL.revokeObjectURL(url);
+        }
     };
 
     return (
@@ -69,7 +69,7 @@ export default function NewRFJob() {
                             </div>
                         </div>
 
-                        <JobTypeSelector selectedJobType={jobType} onChange={setJobType} />
+                        <JobTypeSelector selectedJobType={jobType} onChange={setJobType}/>
 
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <CollapsibleSection title="Facility Owner Details">
@@ -88,7 +88,7 @@ export default function NewRFJob() {
                                 />
                             </CollapsibleSection>
 
-                            <FileUploadBox pdfs={pdfs} onUpdateFiles={setPdfs} />
+                            <FileUploadBox pdfs={pdfs} onUpdateFiles={setPdfs}/>
 
                             <div className="card-actions justify-end">
                                 <button type="submit" className="btn btn-primary">
