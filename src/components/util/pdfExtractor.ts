@@ -2,11 +2,10 @@ import {PDFDocument} from 'pdf-lib';
 import {
     DeviceInfo,
     FacilityOwnerInfo,
-    FinalTest,
-    InitialTest,
     InstallationInfo,
     LocationInfo,
-    RepresentativeInfo
+    RepresentativeInfo,
+    Test
 } from "@/components/types/reportFlowTypes";
 
 //region Field Extractor Helpers
@@ -20,7 +19,8 @@ const extractTextFields = async (pdf: File, fieldNames: string[]) => {
 
     fieldNames.forEach((fieldName) => {
         const field = form.getTextField(fieldName);
-        fieldValues[fieldName] = field?.getText() || `Unknown ${fieldName}`;
+        //fieldValues[fieldName] = field?.getText() || `Unknown ${fieldName}`;
+        fieldValues[fieldName] = field?.getText() || '';
     });
 
     return fieldValues;
@@ -111,8 +111,8 @@ export const extractBackflowInfo = async (pdfs: File[], jobType: string) => {
         locationInfo: LocationInfo;
         installationInfo: InstallationInfo;
         deviceInfo: DeviceInfo;
-        initialTest: InitialTest;
-        finalTest: FinalTest;
+        initialTest: Test;
+        finalTest: Test;
     }> = {};
 
     for (const pdf of pdfs) {
@@ -178,6 +178,12 @@ export const extractBackflowInfo = async (pdfs: File[], jobType: string) => {
                             leaked: false
                         },
                     },
+                    testInfo: {
+                        name: '',
+                        certNo: '',
+                        gaugeKit: '',
+                        date: ''
+                    }
                 },
             }
         } catch (error: unknown) {
@@ -188,8 +194,8 @@ export const extractBackflowInfo = async (pdfs: File[], jobType: string) => {
     return backflowList;
 };
 
-export const extractInitialTest = async (pdf: File, emptyOnly: boolean): Promise<InitialTest> => {
-    const initialTest: InitialTest = {
+export const extractInitialTest = async (pdf: File, emptyOnly: boolean): Promise<Test> => {
+    const initialTest: Test = {
         linePressure: '',
         checkValve1: {
             value: '',
@@ -214,24 +220,35 @@ export const extractInitialTest = async (pdf: File, emptyOnly: boolean): Promise
                 leaked: false
             },
         },
+        testInfo: {
+            name: '',
+            certNo: '',
+            gaugeKit: '',
+            date: ''
+        }
     };
     if (emptyOnly) return initialTest;
 
     try {
         const textFieldNames = [
             'LinePressure', 'InitialCT1', 'InitialCT2',
-            'InitialPSIRV', 'InitialAirInlet', 'InitialCk1PVB'
+            'InitialPSIRV', 'InitialAirInlet', 'InitialCk1PVB',
+            'DateFailed'
         ];
         const checkboxFieldNames = [
             'InitialCTBox', 'InitialCT1Leaked',
             'InitialCT2Box', 'InitialCT2Leaked',
             'InitialRVDidNotOpen',
-            'InitialAirInletLeaked', 'InitialCkPVBLDidNotOpen', 'InitialCkPVBLeaked'
+            'InitialAirInletLeaked', 'InitialCkPVBLDidNotOpen', 'InitialCkPVBLeaked',
+        ];
+        const dropdownFieldNames = [
+            'InitialTester', 'InitialTesterNo', 'InitialTestKitSerial',
         ]
 
         const fields = {
             ...await extractTextFields(pdf, textFieldNames),
-            ...await extractCheckboxFields(pdf, checkboxFieldNames)
+            ...await extractCheckboxFields(pdf, checkboxFieldNames),
+            ...await extractDropdownFields(pdf, dropdownFieldNames)
         };
 
         return {
@@ -248,18 +265,23 @@ export const extractInitialTest = async (pdf: File, emptyOnly: boolean): Promise
                 value: fields['InitialPSIRV'] || '',
                 opened: !stringToBoolean(fields['InitialRVDidNotOpen']),
             },
-            // TODO: IMPLEMENT VACUUM BREAKER INIT TEST EXTRACTION
             vacuumBreaker: {
                 airInlet: {
-                    value: '',
-                    leaked: false,
-                    opened: false
+                    value: fields['InitialAirInlet'] || '',
+                    leaked: stringToBoolean(fields['InitialAirInletLeaked']),
+                    opened: stringToBoolean(fields['InitialCkPVBLDidNotOpen']),
                 },
                 check: {
-                    value: '',
-                    leaked: false
+                    value: fields['InitialCk1PVB'] || '',
+                    leaked: stringToBoolean(fields['InitialCkPVBLeaked']),
                 },
             },
+            testInfo: {
+                name: fields['InitialTester'] || '',
+                certNo: fields['InitialTesterNo'] || '',
+                gaugeKit: fields['InitialTestKitSerial'] || '',
+                date: fields['DateFailed'] || '',
+            }
         };
     } catch (error: unknown) {
         console.error(`Error processing ${pdf.name}:`, error);

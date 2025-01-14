@@ -58,7 +58,6 @@ export interface DeviceInfo {
 
 //endregion
 
-
 export interface CheckValve {
     value: string;
     closedTight: boolean;
@@ -85,28 +84,28 @@ export interface VacuumBreaker {
     check: Check;
 }
 
-export interface InitialTest {
-    linePressure: string;
-    checkValve1: CheckValve;
-    checkValve2: CheckValve;
-    reliefValve: ReliefValve;
-    vacuumBreaker: VacuumBreaker;
+export interface TestInfo {
+    name: string;
+    certNo: string;
+    gaugeKit: string;
+    date: string;
 }
 
-export interface FinalTest {
+export interface Test {
     linePressure: string;
     checkValve1: CheckValve;
     checkValve2: CheckValve;
     reliefValve: ReliefValve;
     vacuumBreaker: VacuumBreaker;
+    testInfo: TestInfo;
 }
 
 export interface Backflow {
     locationInfo: LocationInfo;
     installationInfo: InstallationInfo;
     deviceInfo: DeviceInfo;
-    initialTest: InitialTest;
-    finalTest: FinalTest;
+    initialTest: Test;
+    finalTest: Test;
 }
 
 export interface BackflowList {
