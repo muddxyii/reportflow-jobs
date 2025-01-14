@@ -86,6 +86,7 @@ export interface VacuumBreaker {
 }
 
 export interface InitialTest {
+    linePressure: string;
     checkValve1: CheckValve;
     checkValve2: CheckValve;
     reliefValve: ReliefValve;
@@ -93,6 +94,7 @@ export interface InitialTest {
 }
 
 export interface FinalTest {
+    linePressure: string;
     checkValve1: CheckValve;
     checkValve2: CheckValve;
     reliefValve: ReliefValve;

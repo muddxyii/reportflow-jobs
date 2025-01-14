@@ -154,6 +154,7 @@ export const extractBackflowInfo = async (pdfs: File[], jobType: string) => {
                 // only if jobType = 'Repair'
                 initialTest: await extractInitialTest(pdf, jobType === 'Repair'),
                 finalTest: {
+                    linePressure: '',
                     checkValve1: {
                         value: '',
                         closedTight: false
@@ -189,6 +190,7 @@ export const extractBackflowInfo = async (pdfs: File[], jobType: string) => {
 
 export const extractInitialTest = async (pdf: File, emptyOnly: boolean): Promise<InitialTest> => {
     const initialTest: InitialTest = {
+        linePressure: '',
         checkValve1: {
             value: '',
             closedTight: false
@@ -217,8 +219,8 @@ export const extractInitialTest = async (pdf: File, emptyOnly: boolean): Promise
 
     try {
         const textFieldNames = [
-            'InitialCT1', 'InitialCT2', 'InitialPSIRV',
-            'InitialAirInlet', 'InitialCk1PVB'
+            'LinePressure', 'InitialCT1', 'InitialCT2',
+            'InitialPSIRV', 'InitialAirInlet', 'InitialCk1PVB'
         ];
         const checkboxFieldNames = [
             'InitialCTBox', 'InitialCT1Leaked',
@@ -233,6 +235,7 @@ export const extractInitialTest = async (pdf: File, emptyOnly: boolean): Promise
         };
 
         return {
+            linePressure: fields['LinePressure'] || '',
             checkValve1: {
                 value: fields['InitialCT1'] || '',
                 closedTight: stringToBoolean(fields['InitialCTBox']),
