@@ -110,6 +110,8 @@ export const extractRepresentativeInfo = async (pdf: File) => {
 
 //endregion
 
+// TODO: ADD EXTRACTOR FOR SHUT OFF VALVES!!!
+
 export const extractAllBackflowInfo = async (pdfs: File[]) => {
     const backflowList: Record<string, {
         locationInfo: LocationInfo;
