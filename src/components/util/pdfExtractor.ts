@@ -2,6 +2,7 @@ import {PDFDocument} from 'pdf-lib';
 import {
     DeviceInfo,
     FacilityOwnerInfo,
+    FinalTest,
     InitialTest,
     InstallationInfo,
     LocationInfo,
@@ -105,11 +106,13 @@ export const extractRepresentativeInfo = async (pdf: File) => {
     return representativeInfo;
 };
 
-export const extractBackflowInfo = async (pdfs: File[]) => {
+export const extractBackflowInfo = async (pdfs: File[], jobType: string) => {
     const backflowList: Record<string, {
         locationInfo: LocationInfo;
         installationInfo: InstallationInfo;
         deviceInfo: DeviceInfo;
+        initialTest: InitialTest;
+        finalTest: FinalTest;
     }> = {};
 
     for (const pdf of pdfs) {
@@ -147,8 +150,35 @@ export const extractBackflowInfo = async (pdfs: File[]) => {
                     manufacturer: fields['Manufacturer'] || '',
                     size: fields['Size'] || '',
                     modelNo: fields['ModelNo'] || '',
-                }
-            };
+                },
+                // only if jobType = 'Repair'
+                initialTest: await extractInitialTest(pdf, jobType === 'Repair'),
+                finalTest: {
+                    checkValve1: {
+                        value: '',
+                        closedTight: false
+                    },
+                    checkValve2: {
+                        value: '',
+                        closedTight: false
+                    },
+                    reliefValve: {
+                        value: '',
+                        opened: false
+                    },
+                    vacuumBreaker: {
+                        airInlet: {
+                            value: '',
+                            leaked: false,
+                            opened: false
+                        },
+                        check: {
+                            value: '',
+                            leaked: false
+                        },
+                    },
+                },
+            }
         } catch (error: unknown) {
             console.error(`Error processing ${pdf.name}:`, error);
         }
@@ -157,8 +187,8 @@ export const extractBackflowInfo = async (pdfs: File[]) => {
     return backflowList;
 };
 
-export const extractInitialTest = async (pdf: File) => {
-    let initialTest: InitialTest = {
+export const extractInitialTest = async (pdf: File, emptyOnly: boolean): Promise<InitialTest> => {
+    const initialTest: InitialTest = {
         checkValve1: {
             value: '',
             closedTight: false
@@ -183,6 +213,7 @@ export const extractInitialTest = async (pdf: File) => {
             },
         },
     };
+    if (emptyOnly) return initialTest;
 
     try {
         const textFieldNames = [
@@ -201,7 +232,7 @@ export const extractInitialTest = async (pdf: File) => {
             ...await extractCheckboxFields(pdf, checkboxFieldNames)
         };
 
-        initialTest = {
+        return {
             checkValve1: {
                 value: fields['InitialCT1'] || '',
                 closedTight: stringToBoolean(fields['InitialCTBox']),
@@ -229,7 +260,6 @@ export const extractInitialTest = async (pdf: File) => {
         };
     } catch (error: unknown) {
         console.error(`Error processing ${pdf.name}:`, error);
+        return initialTest;
     }
-
-    return initialTest;
 }

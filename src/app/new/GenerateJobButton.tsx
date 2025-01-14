@@ -27,7 +27,7 @@ const GenerateJobButton: React.FC<GenerateJobButtonProps> = ({
                 facilityOwnerInfo,
                 representativeInfo,
             },
-            backflowList: pdfs?.length ? await extractBackflowInfo(pdfs) : {},
+            backflowList: pdfs?.length ? await extractBackflowInfo(pdfs, jobType) : {},
         };
 
         const jsonData = JSON.stringify(jobData, null, 2);
