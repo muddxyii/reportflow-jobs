@@ -4,7 +4,7 @@ export interface Metadata {
     jobType: string;
 }
 
-//region CustomerInformation
+//region Customer Information
 
 export interface JobDetails {
     permitNo: string;
@@ -33,7 +33,7 @@ export interface CustomerInformation {
 
 //endregion
 
-//region BackflowInfo
+//region Backflow Info
 
 export interface LocationInfo {
     assemblyAddress: string;
@@ -58,6 +58,7 @@ export interface DeviceInfo {
 
 //endregion
 
+//region Backflow Test Points? (valves, etc)
 
 export interface CheckValve {
     value: string;
@@ -81,30 +82,74 @@ export interface Check {
 }
 
 export interface VacuumBreaker {
+    backPressure: boolean;
     airInlet: AirInlet;
     check: Check;
 }
 
-export interface InitialTest {
-    checkValve1: CheckValve;
-    checkValve2: CheckValve;
-    reliefValve: ReliefValve;
-    vacuumBreaker: VacuumBreaker;
+//endregion
+
+export interface TesterInfo {
+    name: string;
+    certNo: string;
+    gaugeKit: string;
+    date: string;
 }
 
-export interface FinalTest {
+export interface Test {
+    linePressure: string;
     checkValve1: CheckValve;
     checkValve2: CheckValve;
     reliefValve: ReliefValve;
     vacuumBreaker: VacuumBreaker;
+    testInfo: TesterInfo;
+}
+
+export interface CheckValveRepairs {
+    cleaned: boolean;
+    checkDisc: boolean;
+    discHolder: boolean;
+    spring: boolean;
+    guide: boolean;
+    seat: boolean;
+    other: boolean;
+}
+
+export interface ReliefValveRepairs {
+    cleaned: boolean;
+    rubberKit: boolean;
+    discHolder: boolean;
+    spring: boolean;
+    guide: boolean;
+    seat: boolean;
+    other: boolean;
+}
+
+export interface VacuumBreakerRepairs {
+    cleaned: boolean;
+    rubberKit: boolean;
+    discHolder: boolean;
+    spring: boolean;
+    guide: boolean;
+    seat: boolean;
+    other: boolean;
+}
+
+export interface Repairs {
+    checkValve1Repairs: CheckValveRepairs;
+    checkValve2Repairs: CheckValveRepairs;
+    reliefValveRepairs: ReliefValveRepairs;
+    vacuumBreakerRepairs: VacuumBreakerRepairs;
+    repairInfo: TesterInfo;
 }
 
 export interface Backflow {
     locationInfo: LocationInfo;
     installationInfo: InstallationInfo;
     deviceInfo: DeviceInfo;
-    initialTest: InitialTest;
-    finalTest: FinalTest;
+    initialTest: Test;
+    repairs: Repairs;
+    finalTest: Test;
 }
 
 export interface BackflowList {
