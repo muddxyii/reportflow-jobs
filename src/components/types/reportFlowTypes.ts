@@ -4,19 +4,26 @@ export interface Metadata {
     jobType: string;
 }
 
+//region CustomerInformation
+
+export interface JobDetails {
+    permitNo: string;
+    waterPurveyor: string;
+}
+
 export interface FacilityOwnerInfo {
-    FacilityOwner: string;
-    Address: string;
-    Email: string;
-    Contact: string;
-    Phone: string;
+    owner: string;
+    address: string;
+    email: string;
+    contact: string;
+    phone: string;
 }
 
 export interface RepresentativeInfo {
-    OwnerRep: string;
-    RepAddress: string;
-    PersontoContact: string;
-    "Phone-0": string;
+    owner: string;
+    address: string;
+    contact: string;
+    phone: string;
 }
 
 export interface CustomerInformation {
@@ -24,13 +31,84 @@ export interface CustomerInformation {
     representativeInfo: RepresentativeInfo;
 }
 
-export interface BackflowItem {
-    SerialNo: string;
-    MeterNo: string;
+//endregion
+
+//region BackflowInfo
+
+export interface LocationInfo {
+    assemblyAddress: string;
+    onSiteLocation: string;
+    primaryService: string;
+}
+
+export interface InstallationInfo {
+    installationStatus: string;
+    protectionType: string;
+    serviceType: string;
+}
+
+export interface DeviceInfo {
+    meterNo: string;
+    serialNo: string;
+    type: string;
+    manufacturer: string;
+    size: string;
+    modelNo: string;
+}
+
+//endregion
+
+
+export interface CheckValve {
+    value: string;
+    closedTight: boolean;
+}
+
+export interface ReliefValve {
+    value: string;
+    opened: boolean;
+}
+
+export interface AirInlet {
+    value: string;
+    leaked: boolean;
+    opened: boolean;
+}
+
+export interface Check {
+    value: string;
+    leaked: boolean;
+}
+
+export interface VacuumBreaker {
+    airInlet: AirInlet;
+    check: Check;
+}
+
+export interface InitialTest {
+    checkValve1: CheckValve;
+    checkValve2: CheckValve;
+    reliefValve: ReliefValve;
+    vacuumBreaker: VacuumBreaker;
+}
+
+export interface FinalTest {
+    checkValve1: CheckValve;
+    checkValve2: CheckValve;
+    reliefValve: ReliefValve;
+    vacuumBreaker: VacuumBreaker;
+}
+
+export interface Backflow {
+    locationInfo: LocationInfo;
+    installationInfo: InstallationInfo;
+    deviceInfo: DeviceInfo;
+    initialTest: InitialTest;
+    finalTest: FinalTest;
 }
 
 export interface BackflowList {
-    [key: string]: BackflowItem;
+    [key: string]: Backflow;
 }
 
 export interface JobData {

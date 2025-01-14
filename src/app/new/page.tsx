@@ -11,17 +11,17 @@ import {FacilityOwnerInfo, RepresentativeInfo} from "@/components/types/reportFl
 
 export default function NewRFJob() {
     const [facilityOwnerInfo, setFacilityOwnerInfo] = useState<FacilityOwnerInfo>({
-        FacilityOwner: '',
-        Address: '',
-        Email: '',
-        Contact: '',
-        Phone: ''
+        owner: '',
+        address: '',
+        email: '',
+        contact: '',
+        phone: ''
     });
     const [representativeInfo, setRepresentativeInfo] = useState<RepresentativeInfo>({
-        OwnerRep: '',
-        RepAddress: '',
-        PersontoContact: '',
-        "Phone-0": ''
+        owner: '',
+        address: '',
+        contact: '',
+        phone: ''
     });
 
     const [pdfs, setPdfs] = useState<File[]>([]);

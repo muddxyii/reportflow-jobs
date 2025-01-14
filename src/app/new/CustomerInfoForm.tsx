@@ -24,7 +24,7 @@ export default function CustomerInfoForm({
                         name="FacilityOwner"
                         placeholder="Facility/Owner"
                         className="input input-bordered w-full"
-                        value={facilityOwnerInfo.FacilityOwner || ""}
+                        value={facilityOwnerInfo.owner || ""}
                         onChange={onFacilityOwnerChange}
                     />
                     <input
@@ -32,7 +32,7 @@ export default function CustomerInfoForm({
                         name="Address"
                         placeholder="Address"
                         className="input input-bordered w-full"
-                        value={facilityOwnerInfo.Address || ""}
+                        value={facilityOwnerInfo.address || ""}
                         onChange={onFacilityOwnerChange}
                     />
                     <input
@@ -40,7 +40,7 @@ export default function CustomerInfoForm({
                         name="Email"
                         placeholder="Email"
                         className="input input-bordered w-full"
-                        value={facilityOwnerInfo.Email || ""}
+                        value={facilityOwnerInfo.email || ""}
                         onChange={onFacilityOwnerChange}
                     />
                     <div className="grid grid-cols-2 gap-4">
@@ -49,7 +49,7 @@ export default function CustomerInfoForm({
                             name="Contact"
                             placeholder="Contact"
                             className="input input-bordered w-full"
-                            value={facilityOwnerInfo.Contact || ""}
+                            value={facilityOwnerInfo.contact || ""}
                             onChange={onFacilityOwnerChange}
                         />
                         <input
@@ -57,7 +57,7 @@ export default function CustomerInfoForm({
                             name="Phone"
                             placeholder="Phone"
                             className="input input-bordered w-full"
-                            value={facilityOwnerInfo.Phone || ""}
+                            value={facilityOwnerInfo.phone || ""}
                             onChange={onFacilityOwnerChange}
                         />
                     </div>
@@ -71,7 +71,7 @@ export default function CustomerInfoForm({
                         name="OwnerRep"
                         placeholder="Owner Representative"
                         className="input input-bordered w-full"
-                        value={representativeInfo.OwnerRep || ""}
+                        value={representativeInfo.owner || ""}
                         onChange={onRepresentativeChange}
                     />
                     <input
@@ -79,7 +79,7 @@ export default function CustomerInfoForm({
                         name="RepAddress"
                         placeholder="Rep Address"
                         className="input input-bordered w-full"
-                        value={representativeInfo.RepAddress || ""}
+                        value={representativeInfo.address || ""}
                         onChange={onRepresentativeChange}
                     />
                     <div className="grid grid-cols-2 gap-4">
@@ -88,7 +88,7 @@ export default function CustomerInfoForm({
                             name="PersontoContact"
                             placeholder="Contact"
                             className="input input-bordered w-full"
-                            value={representativeInfo.PersontoContact || ""}
+                            value={representativeInfo.contact || ""}
                             onChange={onRepresentativeChange}
                         />
                         <input
@@ -96,7 +96,7 @@ export default function CustomerInfoForm({
                             name="Phone-0"
                             placeholder="Phone"
                             className="input input-bordered w-full"
-                            value={representativeInfo["Phone-0"] || ""}
+                            value={representativeInfo.phone || ""}
                             onChange={onRepresentativeChange}
                         />
                     </div>
