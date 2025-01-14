@@ -4,7 +4,7 @@ export interface Metadata {
     jobType: string;
 }
 
-//region CustomerInformation
+//region Customer Information
 
 export interface JobDetails {
     permitNo: string;
@@ -33,7 +33,7 @@ export interface CustomerInformation {
 
 //endregion
 
-//region BackflowInfo
+//region Backflow Info
 
 export interface LocationInfo {
     assemblyAddress: string;
@@ -58,6 +58,8 @@ export interface DeviceInfo {
 
 //endregion
 
+//region Backflow Test Points? (valves, etc)
+
 export interface CheckValve {
     value: string;
     closedTight: boolean;
@@ -80,11 +82,14 @@ export interface Check {
 }
 
 export interface VacuumBreaker {
+    backPressure: boolean;
     airInlet: AirInlet;
     check: Check;
 }
 
-export interface TestInfo {
+//endregion
+
+export interface TesterInfo {
     name: string;
     certNo: string;
     gaugeKit: string;
@@ -97,7 +102,45 @@ export interface Test {
     checkValve2: CheckValve;
     reliefValve: ReliefValve;
     vacuumBreaker: VacuumBreaker;
-    testInfo: TestInfo;
+    testInfo: TesterInfo;
+}
+
+export interface CheckValveRepairs {
+    cleaned: boolean;
+    checkDisc: boolean;
+    discHolder: boolean;
+    spring: boolean;
+    guide: boolean;
+    seat: boolean;
+    other: boolean;
+}
+
+export interface ReliefValveRepairs {
+    cleaned: boolean;
+    rubberKit: boolean;
+    discHolder: boolean;
+    spring: boolean;
+    guide: boolean;
+    seat: boolean;
+    other: boolean;
+}
+
+export interface VacuumBreakerRepairs {
+    cleaned: boolean;
+    rubberKit: boolean;
+    discHolder: boolean;
+    spring: boolean;
+    guide: boolean;
+    seat: boolean;
+    other: boolean;
+}
+
+export interface Repairs {
+    checkValve1Repairs: CheckValveRepairs;
+    checkValve2Repairs: CheckValveRepairs;
+    reliefValveRepairs: ReliefValveRepairs;
+    vacuumBreakerRepairs: VacuumBreakerRepairs;
+    repairInfo: TesterInfo;
 }
 
 export interface Backflow {
@@ -105,6 +148,7 @@ export interface Backflow {
     installationInfo: InstallationInfo;
     deviceInfo: DeviceInfo;
     initialTest: Test;
+    repairs: Repairs;
     finalTest: Test;
 }
 
