@@ -290,7 +290,7 @@ const extractInitialTest = async (pdf: File, emptyOnly: boolean): Promise<Test> 
                 leaked: false
             },
         },
-        testInfo: {
+        testerProfile: {
             name: '',
             certNo: '',
             gaugeKit: '',
@@ -348,7 +348,7 @@ const extractInitialTest = async (pdf: File, emptyOnly: boolean): Promise<Test> 
                     leaked: stringToBoolean(fields['InitialCkPVBLeaked']),
                 },
             },
-            testInfo: {
+            testerProfile: {
                 name: fields['InitialTester'] || '',
                 certNo: fields['InitialTesterNo'] || '',
                 gaugeKit: fields['InitialTestKitSerial'] || '',
@@ -399,7 +399,7 @@ const extractRepairs = async (pdf: File, emptyOnly: boolean): Promise<Repairs> =
             seat: false,
             other: false
         },
-        repairInfo: {
+        testerProfile: {
             name: '',
             certNo: '',
             gaugeKit: '',
@@ -473,7 +473,7 @@ const extractRepairs = async (pdf: File, emptyOnly: boolean): Promise<Repairs> =
                 seat: stringToBoolean(fields['PVBSeat']),
                 other: stringToBoolean(fields['PVBOther']),
             },
-            repairInfo: {
+            testerProfile: {
                 name: fields['RepairedTester'] || '',
                 certNo: fields['RepairedTesterNo'] || '',
                 gaugeKit: fields['RepairedTestKitSerial'] || '',
@@ -513,7 +513,7 @@ const extractFinalTest = async (pdf: File, emptyOnly: boolean): Promise<Test> =>
                 leaked: false
             },
         },
-        testInfo: {
+        testerProfile: {
             name: '',
             certNo: '',
             gaugeKit: '',
@@ -570,7 +570,7 @@ const extractFinalTest = async (pdf: File, emptyOnly: boolean): Promise<Test> =>
                     leaked: false,
                 },
             },
-            testInfo: {
+            testerProfile: {
                 name: fields['FinalTester'] || '',
                 certNo: fields['FinalTesterNo'] || '',
                 gaugeKit: fields['FinalTestKitSerial'] || '',

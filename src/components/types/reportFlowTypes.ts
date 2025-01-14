@@ -89,7 +89,7 @@ export interface VacuumBreaker {
 
 //endregion
 
-export interface TesterInfo {
+export interface TesterProfile {
     name: string;
     certNo: string;
     gaugeKit: string;
@@ -102,7 +102,7 @@ export interface Test {
     checkValve2: CheckValve;
     reliefValve: ReliefValve;
     vacuumBreaker: VacuumBreaker;
-    testInfo: TesterInfo;
+    testerProfile: TesterProfile;
 }
 
 export interface CheckValveRepairs {
@@ -140,7 +140,7 @@ export interface Repairs {
     checkValve2Repairs: CheckValveRepairs;
     reliefValveRepairs: ReliefValveRepairs;
     vacuumBreakerRepairs: VacuumBreakerRepairs;
-    repairInfo: TesterInfo;
+    testerProfile: TesterProfile;
 }
 
 export interface Backflow {
