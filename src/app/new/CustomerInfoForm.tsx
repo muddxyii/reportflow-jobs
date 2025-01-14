@@ -1,54 +1,107 @@
 ﻿import {ChangeEvent} from "react";
+import {FacilityOwnerInfo, RepresentativeInfo} from "@/components/types/reportFlowTypes";
+import CollapsibleSection from "@/components/collapsible-section";
 
-export const facilityOwnerFields = [
-    { name: "FacilityOwner", placeholder: "Facility/Owner" },
-    { name: "Address", placeholder: "Address" },
-    { name: "Email", placeholder: "Email" },
-    { name: "Contact", placeholder: "Contact", sideBySide: true },
-    { name: "Phone", placeholder: "Phone", sideBySide: true }
-];
+interface CustomerInfoFormProps {
+    facilityOwnerInfo: FacilityOwnerInfo;
+    representativeInfo: RepresentativeInfo;
+    onFacilityOwnerChange: (e: ChangeEvent<HTMLInputElement>) => void;
+    onRepresentativeChange: (e: ChangeEvent<HTMLInputElement>) => void;
+}
 
-export const representativeFields = [
-    { name: "OwnerRep", placeholder: "Owner Representative" },
-    { name: "RepAddress", placeholder: "Rep Address" },
-    { name: "PersontoContact", placeholder: "Contact", sideBySide: true },
-    { name: "Phone-0", placeholder: "Phone", sideBySide: true }
-];
-
-export default function CustomerInfoForm({fields, customerInfo, onChange}: {
-    fields: { name: string; placeholder: string; sideBySide?: boolean }[];
-    customerInfo: Record<string, string>;
-    onChange: (e: ChangeEvent<HTMLInputElement>) => void;
-}) {
-    const groupedFields = fields.reduce<Array<Array<typeof fields[0]>>>((acc, field) => {
-        if (field.sideBySide && fields[fields.indexOf(field) + 1]?.sideBySide) {
-            acc.push([field, fields[fields.indexOf(field) + 1]]);
-            return acc;
-        }
-        if (!field.sideBySide && !fields[fields.indexOf(field) - 1]?.sideBySide) {
-            acc.push([field]);
-        }
-        return acc;
-    }, []);
-
+export default function CustomerInfoForm({
+                                             facilityOwnerInfo,
+                                             representativeInfo,
+                                             onFacilityOwnerChange,
+                                             onRepresentativeChange
+                                         }: CustomerInfoFormProps) {
     return (
-        <div className="space-y-4">
-            {groupedFields.map((group, index) => (
-                <div key={index} className={`grid ${group.length > 1 ? 'grid-cols-2 gap-4' : 'grid-cols-1'}`}>
-                    {group.map(field => (
+        <div className="space-y-8">
+            <CollapsibleSection title="Facility Owner Details">
+                <div className="space-y-4">
+                    <input
+                        type="text"
+                        name="FacilityOwner"
+                        placeholder="Facility/Owner"
+                        className="input input-bordered w-full"
+                        value={facilityOwnerInfo.owner || ""}
+                        onChange={onFacilityOwnerChange}
+                    />
+                    <input
+                        type="text"
+                        name="Address"
+                        placeholder="Address"
+                        className="input input-bordered w-full"
+                        value={facilityOwnerInfo.address || ""}
+                        onChange={onFacilityOwnerChange}
+                    />
+                    <input
+                        type="text"
+                        name="Email"
+                        placeholder="Email"
+                        className="input input-bordered w-full"
+                        value={facilityOwnerInfo.email || ""}
+                        onChange={onFacilityOwnerChange}
+                    />
+                    <div className="grid grid-cols-2 gap-4">
                         <input
-                            key={field.name}
                             type="text"
-                            name={field.name}
-                            placeholder={field.placeholder}
+                            name="Contact"
+                            placeholder="Contact"
                             className="input input-bordered w-full"
-                            value={customerInfo[field.name] || ""}
-                            onChange={onChange}
+                            value={facilityOwnerInfo.contact || ""}
+                            onChange={onFacilityOwnerChange}
                         />
-                    ))}
+                        <input
+                            type="text"
+                            name="Phone"
+                            placeholder="Phone"
+                            className="input input-bordered w-full"
+                            value={facilityOwnerInfo.phone || ""}
+                            onChange={onFacilityOwnerChange}
+                        />
+                    </div>
                 </div>
-            ))}
+            </CollapsibleSection>
+
+            <CollapsibleSection title="Representative Details">
+                <div className="space-y-4">
+                    <input
+                        type="text"
+                        name="OwnerRep"
+                        placeholder="Owner Representative"
+                        className="input input-bordered w-full"
+                        value={representativeInfo.owner || ""}
+                        onChange={onRepresentativeChange}
+                    />
+                    <input
+                        type="text"
+                        name="RepAddress"
+                        placeholder="Rep Address"
+                        className="input input-bordered w-full"
+                        value={representativeInfo.address || ""}
+                        onChange={onRepresentativeChange}
+                    />
+                    <div className="grid grid-cols-2 gap-4">
+                        <input
+                            type="text"
+                            name="PersontoContact"
+                            placeholder="Contact"
+                            className="input input-bordered w-full"
+                            value={representativeInfo.contact || ""}
+                            onChange={onRepresentativeChange}
+                        />
+                        <input
+                            type="text"
+                            name="Phone-0"
+                            placeholder="Phone"
+                            className="input input-bordered w-full"
+                            value={representativeInfo.phone || ""}
+                            onChange={onRepresentativeChange}
+                        />
+                    </div>
+                </div>
+            </CollapsibleSection>
         </div>
     );
 }
-

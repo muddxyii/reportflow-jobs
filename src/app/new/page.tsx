@@ -1,57 +1,37 @@
-﻿'use client'
+﻿'use client';
 
-import React, { useState, ChangeEvent, FormEvent } from 'react';
-import { v4 as uuid } from 'uuid';
-import CustomerInfoForm, { facilityOwnerFields, representativeFields } from './CustomerInfoForm';
+import React, {ChangeEvent, useState} from 'react';
+import CustomerInfoForm from './CustomerInfoForm';
 import FileUploadBox from './FileUploadBox';
-import CollapsibleSection from '@/components/collapsible-section';
 import JobTypeSelector from './JobTypeSelector';
-import PdfPopulateButton from './PdfPopulateButton';
+import GenerateJobButton from './GenerateJobButton';
+import PdfPopulateButton from '@/app/new/PdfPopulateButton';
+import {FacilityOwnerInfo, RepresentativeInfo} from "@/components/types/reportFlowTypes";
+
 
 export default function NewRFJob() {
-    const [facilityOwnerInfo, setFacilityOwnerInfo] = useState<Record<string, string>>({});
-    const [representativeInfo, setRepresentativeInfo] = useState<Record<string, string>>({});
+    const [facilityOwnerInfo, setFacilityOwnerInfo] = useState<FacilityOwnerInfo>({
+        owner: '',
+        address: '',
+        email: '',
+        contact: '',
+        phone: ''
+    });
+    const [representativeInfo, setRepresentativeInfo] = useState<RepresentativeInfo>({
+        owner: '',
+        address: '',
+        contact: '',
+        phone: ''
+    });
+
     const [pdfs, setPdfs] = useState<File[]>([]);
     const [jobType, setJobType] = useState<string>('New Test');
 
-    const handleInfoChange = (setter: React.Dispatch<React.SetStateAction<Record<string, string>>>) =>
-        (e: ChangeEvent<HTMLInputElement>) => {
-            const { name, value } = e.target;
-            setter(prev => ({ ...prev, [name]: value }));
-        };
-
-    const handleSubmit = (e: FormEvent) => {
-        e.preventDefault();
-
-        // Generate a unique job ID
-        const jobId = uuid();
-        const creationDate = new Date().toISOString();
-        
-        // Construct the job data object
-        const jobData = {
-            jobId,
-            creationDate,
-            jobType,
-            facilityOwnerInfo,
-            representativeInfo,
-            pdfs: pdfs.map(file => file.name), // Include only file names
-        };
-
-        // Convert the data to JSON
-        const jsonData = JSON.stringify(jobData, null, 2);
-
-        // Create a blob and download the JSON file
-        const blob = new Blob([jsonData], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-
-        // Create a temporary link and trigger download
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `${jobId}.rfjson`;
-        link.click();
-
-        // Clean up
-        URL.revokeObjectURL(url);
+    const handleInfoChange = <T extends object>(
+        setter: React.Dispatch<React.SetStateAction<T>>
+    ) => (e: ChangeEvent<HTMLInputElement>) => {
+        const {name, value} = e.target;
+        setter((prev) => ({...prev, [name]: value}));
     };
 
     return (
@@ -69,31 +49,25 @@ export default function NewRFJob() {
                             </div>
                         </div>
 
-                        <JobTypeSelector selectedJobType={jobType} onChange={setJobType} />
+                        <JobTypeSelector selectedJobType={jobType} onChange={setJobType}/>
 
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                            <CollapsibleSection title="Facility Owner Details">
-                                <CustomerInfoForm
-                                    fields={facilityOwnerFields}
-                                    customerInfo={facilityOwnerInfo}
-                                    onChange={handleInfoChange(setFacilityOwnerInfo)}
-                                />
-                            </CollapsibleSection>
+                        <form className="space-y-4">
+                            <CustomerInfoForm
+                                facilityOwnerInfo={facilityOwnerInfo}
+                                representativeInfo={representativeInfo}
+                                onFacilityOwnerChange={handleInfoChange(setFacilityOwnerInfo)}
+                                onRepresentativeChange={handleInfoChange(setRepresentativeInfo)}
+                            />
 
-                            <CollapsibleSection title="Representative Owner Details">
-                                <CustomerInfoForm
-                                    fields={representativeFields}
-                                    customerInfo={representativeInfo}
-                                    onChange={handleInfoChange(setRepresentativeInfo)}
-                                />
-                            </CollapsibleSection>
-
-                            <FileUploadBox pdfs={pdfs} onUpdateFiles={setPdfs} />
+                            <FileUploadBox pdfs={pdfs} onUpdateFiles={setPdfs}/>
 
                             <div className="card-actions justify-end">
-                                <button type="submit" className="btn btn-primary">
-                                    Generate ReportFlow Job
-                                </button>
+                                <GenerateJobButton
+                                    jobType={jobType}
+                                    facilityOwnerInfo={facilityOwnerInfo}
+                                    representativeInfo={representativeInfo}
+                                    pdfs={pdfs}
+                                />
                             </div>
                         </form>
                     </div>
