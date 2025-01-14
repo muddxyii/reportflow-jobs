@@ -1,41 +1,23 @@
-﻿import React, { ChangeEvent } from 'react';
-import { PDFDocument } from 'pdf-lib';
-import { facilityOwnerFields, representativeFields } from './CustomerInfoForm';
+﻿import React, {ChangeEvent} from 'react';
+import {extractFacilityOwnerInfo, extractRepresentativeInfo} from "@/components/util/pdfExtractor";
+import {FacilityOwnerInfo, RepresentativeInfo} from "@/components/types/reportFlowTypes";
 
 type PdfPopulateButtonProps = {
-    setFacilityOwnerInfo: React.Dispatch<React.SetStateAction<Record<string, string>>>;
-    setRepresentativeInfo: React.Dispatch<React.SetStateAction<Record<string, string>>>;
+    setFacilityOwnerInfo: (info: FacilityOwnerInfo) => void;
+    setRepresentativeInfo: (info: RepresentativeInfo) => void;
 };
 
-export default function PdfPopulateButton({ setFacilityOwnerInfo, setRepresentativeInfo }: PdfPopulateButtonProps) {
+export default function PdfPopulateButton({setFacilityOwnerInfo, setRepresentativeInfo}: PdfPopulateButtonProps) {
     const handlePdfUploadForFields = async (e: ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
 
         try {
-            const fileArrayBuffer = await file.arrayBuffer();
-            const pdfDoc = await PDFDocument.load(fileArrayBuffer);
-            const form = pdfDoc.getForm();
+            const extractedFacilityInfo = await extractFacilityOwnerInfo(file);
+            const extractedRepInfo = await extractRepresentativeInfo(file);
 
-            // Populate facility owner fields
-            const updatedFacilityOwnerInfo: Record<string, string> = {};
-            facilityOwnerFields.forEach(field => {
-                const pdfField = form.getTextField(field.name);
-                if (pdfField) {
-                    updatedFacilityOwnerInfo[field.name] = pdfField.getText() || '';
-                }
-            });
-            setFacilityOwnerInfo(prev => ({ ...prev, ...updatedFacilityOwnerInfo }));
-
-            // Populate representative fields
-            const updatedRepresentativeInfo: Record<string, string> = {};
-            representativeFields.forEach(field => {
-                const pdfField = form.getTextField(field.name);
-                if (pdfField) {
-                    updatedRepresentativeInfo[field.name] = pdfField.getText() || '';
-                }
-            });
-            setRepresentativeInfo(prev => ({ ...prev, ...updatedRepresentativeInfo }));
+            setFacilityOwnerInfo(extractedFacilityInfo);
+            setRepresentativeInfo(extractedRepInfo);
         } catch (err) {
             console.error('Error reading PDF form:', err);
         }
@@ -43,10 +25,7 @@ export default function PdfPopulateButton({ setFacilityOwnerInfo, setRepresentat
 
     return (
         <>
-            <label
-                htmlFor="pdfUpload"
-                className="btn btn-secondary shadow-md text-sm text-right"
-            >
+            <label htmlFor="pdfUpload" className="btn btn-secondary shadow-md text-sm text-right">
                 Populate Fields from PDF
             </label>
             <input
