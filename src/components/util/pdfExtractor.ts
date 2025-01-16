@@ -171,7 +171,7 @@ export const extractBackflowInfo = async (pdfs: File[], jobType: string) => {
                 locationInfo: await extractLocationInfo(pdf),
                 installationInfo: await extractInstallationInfo(pdf),
                 deviceInfo: await extractDeviceInfo(pdf),
-                initialTest: await extractInitialTest(pdf, jobType === 'Repair'),
+                initialTest: await extractInitialTest(pdf, !(jobType === 'Repair')),
                 repairs: await extractRepairs(pdf, true),
                 finalTest: await extractFinalTest(pdf, true),
             }
