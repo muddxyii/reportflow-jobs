@@ -110,6 +110,8 @@ export const extractRepresentativeInfo = async (pdf: File) => {
 
 //endregion
 
+// TODO: ADD EXTRACTOR FOR SHUT OFF VALVES!!!
+
 export const extractAllBackflowInfo = async (pdfs: File[]) => {
     const backflowList: Record<string, {
         locationInfo: LocationInfo;
@@ -169,7 +171,7 @@ export const extractBackflowInfo = async (pdfs: File[], jobType: string) => {
                 locationInfo: await extractLocationInfo(pdf),
                 installationInfo: await extractInstallationInfo(pdf),
                 deviceInfo: await extractDeviceInfo(pdf),
-                initialTest: await extractInitialTest(pdf, jobType === 'Repair'),
+                initialTest: await extractInitialTest(pdf, !(jobType === 'Repair')),
                 repairs: await extractRepairs(pdf, true),
                 finalTest: await extractFinalTest(pdf, true),
             }
@@ -208,7 +210,7 @@ const extractLocationInfo = async (pdf: File): Promise<LocationInfo> => {
 
 const extractInstallationInfo = async (pdf: File): Promise<InstallationInfo> => {
     const installationInfo: InstallationInfo = {
-        installationStatus: "", protectionType: "", serviceType: ""
+        status: "", protectionType: "", serviceType: ""
     }
 
     try {
@@ -219,7 +221,7 @@ const extractInstallationInfo = async (pdf: File): Promise<InstallationInfo> => 
         const fields = await extractDropdownFields(pdf, dropdownFieldNames);
 
         return {
-            installationStatus: fields['InstallationIs'] || '',
+            status: fields['InstallationIs'] || '',
             protectionType: fields['ProtectionType'] || '',
             serviceType: fields['ServiceType'] || ''
         }
@@ -231,15 +233,24 @@ const extractInstallationInfo = async (pdf: File): Promise<InstallationInfo> => 
 
 const extractDeviceInfo = async (pdf: File): Promise<DeviceInfo> => {
     const deviceInfo: DeviceInfo = {
-        manufacturer: "", meterNo: "", modelNo: "", serialNo: "", size: "", type: ""
+        manufacturer: "",
+        meterNo: "",
+        modelNo: "",
+        serialNo: "",
+        size: "",
+        type: "",
+        shutoffValves: {
+            status: '',
+            comment: ''
+        }
     }
 
     try {
         const textFieldNames = [
-            'SerialNo', 'WaterMeterNo', 'Size', 'ModelNo',
+            'SerialNo', 'WaterMeterNo', 'Size', 'ModelNo', 'SOVComment',
         ];
         const dropdownFieldNames = [
-            'BFType', 'Manufacturer',
+            'BFType', 'Manufacturer', 'SOVList',
         ]
 
         const fields = {
@@ -254,6 +265,10 @@ const extractDeviceInfo = async (pdf: File): Promise<DeviceInfo> => {
             manufacturer: fields['Manufacturer'] || '',
             size: fields['Size'] || '',
             modelNo: fields['ModelNo'] || '',
+            shutoffValves: {
+                status: fields['SOVList'] || '',
+                comment: fields['SOVComment'] || '',
+            },
         }
     } catch (error: unknown) {
         console.error(`Error processing ${pdf.name}:`, error);
@@ -288,7 +303,7 @@ const extractInitialTest = async (pdf: File, emptyOnly: boolean): Promise<Test> 
                 leaked: false
             },
         },
-        testInfo: {
+        testerProfile: {
             name: '',
             certNo: '',
             gaugeKit: '',
@@ -346,7 +361,7 @@ const extractInitialTest = async (pdf: File, emptyOnly: boolean): Promise<Test> 
                     leaked: stringToBoolean(fields['InitialCkPVBLeaked']),
                 },
             },
-            testInfo: {
+            testerProfile: {
                 name: fields['InitialTester'] || '',
                 certNo: fields['InitialTesterNo'] || '',
                 gaugeKit: fields['InitialTestKitSerial'] || '',
@@ -397,7 +412,7 @@ const extractRepairs = async (pdf: File, emptyOnly: boolean): Promise<Repairs> =
             seat: false,
             other: false
         },
-        repairInfo: {
+        testerProfile: {
             name: '',
             certNo: '',
             gaugeKit: '',
@@ -471,7 +486,7 @@ const extractRepairs = async (pdf: File, emptyOnly: boolean): Promise<Repairs> =
                 seat: stringToBoolean(fields['PVBSeat']),
                 other: stringToBoolean(fields['PVBOther']),
             },
-            repairInfo: {
+            testerProfile: {
                 name: fields['RepairedTester'] || '',
                 certNo: fields['RepairedTesterNo'] || '',
                 gaugeKit: fields['RepairedTestKitSerial'] || '',
@@ -511,7 +526,7 @@ const extractFinalTest = async (pdf: File, emptyOnly: boolean): Promise<Test> =>
                 leaked: false
             },
         },
-        testInfo: {
+        testerProfile: {
             name: '',
             certNo: '',
             gaugeKit: '',
@@ -568,7 +583,7 @@ const extractFinalTest = async (pdf: File, emptyOnly: boolean): Promise<Test> =>
                     leaked: false,
                 },
             },
-            testInfo: {
+            testerProfile: {
                 name: fields['FinalTester'] || '',
                 certNo: fields['FinalTesterNo'] || '',
                 gaugeKit: fields['FinalTestKitSerial'] || '',
