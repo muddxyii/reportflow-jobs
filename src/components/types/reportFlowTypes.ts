@@ -42,7 +42,7 @@ export interface LocationInfo {
 }
 
 export interface InstallationInfo {
-    installationStatus: string;
+    status: string;
     protectionType: string;
     serviceType: string;
 }

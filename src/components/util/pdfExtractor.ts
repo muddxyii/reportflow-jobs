@@ -210,7 +210,7 @@ const extractLocationInfo = async (pdf: File): Promise<LocationInfo> => {
 
 const extractInstallationInfo = async (pdf: File): Promise<InstallationInfo> => {
     const installationInfo: InstallationInfo = {
-        installationStatus: "", protectionType: "", serviceType: ""
+        status: "", protectionType: "", serviceType: ""
     }
 
     try {
@@ -221,7 +221,7 @@ const extractInstallationInfo = async (pdf: File): Promise<InstallationInfo> => 
         const fields = await extractDropdownFields(pdf, dropdownFieldNames);
 
         return {
-            installationStatus: fields['InstallationIs'] || '',
+            status: fields['InstallationIs'] || '',
             protectionType: fields['ProtectionType'] || '',
             serviceType: fields['ServiceType'] || ''
         }
