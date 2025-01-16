@@ -233,15 +233,24 @@ const extractInstallationInfo = async (pdf: File): Promise<InstallationInfo> => 
 
 const extractDeviceInfo = async (pdf: File): Promise<DeviceInfo> => {
     const deviceInfo: DeviceInfo = {
-        manufacturer: "", meterNo: "", modelNo: "", serialNo: "", size: "", type: ""
+        manufacturer: "",
+        meterNo: "",
+        modelNo: "",
+        serialNo: "",
+        size: "",
+        type: "",
+        shutoffValves: {
+            status: '',
+            comment: ''
+        }
     }
 
     try {
         const textFieldNames = [
-            'SerialNo', 'WaterMeterNo', 'Size', 'ModelNo',
+            'SerialNo', 'WaterMeterNo', 'Size', 'ModelNo', 'SOVComment',
         ];
         const dropdownFieldNames = [
-            'BFType', 'Manufacturer',
+            'BFType', 'Manufacturer', 'SOVList',
         ]
 
         const fields = {
@@ -256,6 +265,10 @@ const extractDeviceInfo = async (pdf: File): Promise<DeviceInfo> => {
             manufacturer: fields['Manufacturer'] || '',
             size: fields['Size'] || '',
             modelNo: fields['ModelNo'] || '',
+            shutoffValves: {
+                status: fields['SOVList'] || '',
+                comment: fields['SOVComment'] || '',
+            },
         }
     } catch (error: unknown) {
         console.error(`Error processing ${pdf.name}:`, error);

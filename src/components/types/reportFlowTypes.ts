@@ -54,6 +54,10 @@ export interface DeviceInfo {
     manufacturer: string;
     size: string;
     modelNo: string;
+    shutoffValves: {
+        status: string;
+        comment: string;
+    }
 }
 
 //endregion
