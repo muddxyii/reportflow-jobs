@@ -4,9 +4,9 @@ import React, {ChangeEvent, useState} from 'react';
 import CustomerInfoForm from './CustomerInfoForm';
 import FileUploadBox from './FileUploadBox';
 import JobTypeSelector from './JobTypeSelector';
-import GenerateJobButton from './GenerateJobButton';
 import PdfPopulateButton from '@/app/new/PdfPopulateButton';
 import {FacilityOwnerInfo, RepresentativeInfo} from "@/components/types/reportFlowTypes";
+import {handleGenerateJob} from "@/app/new/GenerateJob";
 
 
 export default function NewRFJob() {
@@ -26,6 +26,7 @@ export default function NewRFJob() {
 
     const [pdfs, setPdfs] = useState<File[]>([]);
     const [jobType, setJobType] = useState<string>('New Test');
+    const [jobName, setJobName] = useState<string>('');
 
     const handleInfoChange = <T extends object>(
         setter: React.Dispatch<React.SetStateAction<T>>
@@ -33,6 +34,17 @@ export default function NewRFJob() {
         const {name, value} = e.target;
         setter((prev) => ({...prev, [name]: value}));
     };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        await handleGenerateJob(
+            jobName,
+            jobType,
+            facilityOwnerInfo,
+            representativeInfo,
+            pdfs,
+        )
+    }
 
     return (
         <main className="min-h-screen bg-base-300 p-8">
@@ -49,9 +61,24 @@ export default function NewRFJob() {
                             </div>
                         </div>
 
-                        <JobTypeSelector selectedJobType={jobType} onChange={setJobType}/>
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                            <div className="form-control w-full mb-2">
+                                <label className="label">
+                                    <span className="text-xl font-semibold">Job Name</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    name="jobName"
+                                    value={jobName}
+                                    onChange={(e) => setJobName(e.target.value)}
+                                    className="input input-bordered"
+                                    placeholder="Enter Job Name"
+                                    required
+                                />
+                            </div>
 
-                        <form className="space-y-4">
+                            <JobTypeSelector selectedJobType={jobType} onChange={setJobType}/>
+
                             <CustomerInfoForm
                                 facilityOwnerInfo={facilityOwnerInfo}
                                 representativeInfo={representativeInfo}
@@ -62,12 +89,9 @@ export default function NewRFJob() {
                             <FileUploadBox pdfs={pdfs} onUpdateFiles={setPdfs}/>
 
                             <div className="card-actions justify-end">
-                                <GenerateJobButton
-                                    jobType={jobType}
-                                    facilityOwnerInfo={facilityOwnerInfo}
-                                    representativeInfo={representativeInfo}
-                                    pdfs={pdfs}
-                                />
+                                <button type="submit" className="btn btn-primary">
+                                    Generate ReportFlow Job
+                                </button>
                             </div>
                         </form>
                     </div>

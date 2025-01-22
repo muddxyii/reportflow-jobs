@@ -1,13 +1,16 @@
+export const FORMAT_VERSION = "1.0.0";
+
 export interface Metadata {
     jobId: string;
+    formatVersion: string;
     creationDate: string;
+    jobName: string;
     jobType: string;
 }
 
 //region Customer Information
 
 export interface JobDetails {
-    permitNo: string;
     waterPurveyor: string;
 }
 
@@ -48,6 +51,7 @@ export interface InstallationInfo {
 }
 
 export interface DeviceInfo {
+    permitNo: string;
     meterNo: string;
     serialNo: string;
     type: string;
