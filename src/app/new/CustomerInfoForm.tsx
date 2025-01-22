@@ -77,7 +77,7 @@ export default function CustomerInfoForm({
                     <input
                         type="text"
                         name="RepAddress"
-                        placeholder="Rep Address"
+                        placeholder="Address"
                         className="input input-bordered w-full"
                         value={representativeInfo.address || ""}
                         onChange={onRepresentativeChange}
