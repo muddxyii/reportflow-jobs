@@ -233,6 +233,7 @@ const extractInstallationInfo = async (pdf: File): Promise<InstallationInfo> => 
 
 const extractDeviceInfo = async (pdf: File): Promise<DeviceInfo> => {
     const deviceInfo: DeviceInfo = {
+        permitNo: "",
         manufacturer: "",
         meterNo: "",
         modelNo: "",
@@ -259,6 +260,7 @@ const extractDeviceInfo = async (pdf: File): Promise<DeviceInfo> => {
         };
 
         return {
+            permitNo: fields['PermitAccountNo'] || '',
             meterNo: fields['WaterMeterNo'] || '',
             serialNo: fields['SerialNo'] || '',
             type: fields['BFType'] || '',
