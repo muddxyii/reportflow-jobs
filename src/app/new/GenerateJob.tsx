@@ -31,9 +31,22 @@ export const handleGenerateJob = async (
     try {
         const link = document.createElement('a');
         link.href = url;
-        link.download = `${jobData.metadata.jobId}.rfjson`;
+        const formattedJobName = formatJobName(jobData.metadata.jobName);
+        link.download = `${formattedJobName}.rfjson`;
         link.click();
     } finally {
         URL.revokeObjectURL(url);
     }
+};
+
+const formatJobName = (jobName: string) => {
+    const formattedName = jobName.trim().split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join('');
+    const currentDate = new Date().toLocaleDateString('en-US', {
+        month: '2-digit',
+        day: '2-digit',
+        year: 'numeric',
+    }).replace(/\//g, '-');
+    return `${formattedName}_${currentDate}`;
 };
