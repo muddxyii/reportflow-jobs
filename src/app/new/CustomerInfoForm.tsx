@@ -16,7 +16,7 @@ export default function CustomerInfoForm({
                                              onRepresentativeChange
                                          }: CustomerInfoFormProps) {
     return (
-        <div className="space-y-8">
+        <div className="space-y-4">
             <CollapsibleSection title="Facility Owner Details">
                 <div className="space-y-4">
                     <input

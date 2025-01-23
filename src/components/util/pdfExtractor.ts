@@ -108,6 +108,20 @@ export const extractRepresentativeInfo = async (pdf: File) => {
     return representativeInfo;
 };
 
+export const extractWaterPurveyor = async (pdf: File) => {
+    let waterPurveyor = '';
+
+    try {
+        const fieldNames = ['WaterPurveyor'];
+        const fields = await extractDropdownFields(pdf, fieldNames);
+        waterPurveyor = fields['WaterPurveyor'] || '';
+    } catch (error: unknown) {
+        console.error(`Error processing ${pdf.name}:`, error);
+    }
+
+    return waterPurveyor;
+};
+
 //endregion
 
 // TODO: ADD EXTRACTOR FOR SHUT OFF VALVES!!!
