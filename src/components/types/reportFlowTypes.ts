@@ -4,15 +4,16 @@ export interface Metadata {
     jobId: string;
     formatVersion: string;
     creationDate: string;
+    lastModifiedDate: string;
+}
+
+export interface JobDetails {
     jobName: string;
     jobType: string;
+    waterPurveyor: string;
 }
 
 //region Customer Information
-
-export interface JobDetails {
-    waterPurveyor: string;
-}
 
 export interface FacilityOwnerInfo {
     owner: string;
@@ -166,6 +167,7 @@ export interface BackflowList {
 
 export interface JobData {
     metadata: Metadata;
+    details: JobDetails;
     customerInformation: CustomerInformation;
     backflowList: BackflowList;
 }

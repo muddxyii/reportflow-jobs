@@ -5,6 +5,7 @@ import {FacilityOwnerInfo, FORMAT_VERSION, JobData, RepresentativeInfo} from "@/
 export const handleGenerateJob = async (
     jobName: string,
     jobType: string,
+    waterPurveyor: string,
     facilityOwnerInfo: FacilityOwnerInfo,
     representativeInfo: RepresentativeInfo,
     pdfs: File[]
@@ -14,8 +15,12 @@ export const handleGenerateJob = async (
             jobId: uuid(),
             formatVersion: FORMAT_VERSION,
             creationDate: new Date().toISOString(),
+            lastModifiedDate: new Date().toISOString(),
+        },
+        details: {
             jobName,
             jobType,
+            waterPurveyor,
         },
         customerInformation: {
             facilityOwnerInfo,
@@ -31,7 +36,7 @@ export const handleGenerateJob = async (
     try {
         const link = document.createElement('a');
         link.href = url;
-        const formattedJobName = formatJobName(jobData.metadata.jobName);
+        const formattedJobName = formatJobName(jobData.details.jobName);
         link.download = `${formattedJobName}.rfjson`;
         link.click();
     } finally {

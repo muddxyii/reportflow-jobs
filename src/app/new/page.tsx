@@ -25,8 +25,9 @@ export default function NewRFJob() {
     });
 
     const [pdfs, setPdfs] = useState<File[]>([]);
-    const [jobType, setJobType] = useState<string>('New Test');
     const [jobName, setJobName] = useState<string>('');
+    const [jobType, setJobType] = useState<string>('New Test');
+    const [waterPurveyor, setWaterPurveyor] = useState<string>('');
 
     const handleInfoChange = <T extends object>(
         setter: React.Dispatch<React.SetStateAction<T>>
@@ -40,6 +41,7 @@ export default function NewRFJob() {
         await handleGenerateJob(
             jobName,
             jobType,
+            waterPurveyor,
             facilityOwnerInfo,
             representativeInfo,
             pdfs,
@@ -57,6 +59,7 @@ export default function NewRFJob() {
                                 <PdfPopulateButton
                                     setFacilityOwnerInfo={setFacilityOwnerInfo}
                                     setRepresentativeInfo={setRepresentativeInfo}
+                                    setWaterPurveyor={setWaterPurveyor}
                                 />
                             </div>
                         </div>
@@ -78,6 +81,21 @@ export default function NewRFJob() {
                             </div>
 
                             <JobTypeSelector selectedJobType={jobType} onChange={setJobType}/>
+
+                            <div className="form-control w-full mb-2">
+                                <label className="label">
+                                    <span className="text-xl font-semibold">Water Purveyor</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    name="waterPurveyor"
+                                    value={waterPurveyor}
+                                    onChange={(e) => setWaterPurveyor(e.target.value)}
+                                    className="input input-bordered"
+                                    placeholder="Enter Water Purveyor"
+                                    required
+                                />
+                            </div>
 
                             <CustomerInfoForm
                                 facilityOwnerInfo={facilityOwnerInfo}

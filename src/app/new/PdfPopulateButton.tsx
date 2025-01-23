@@ -1,13 +1,22 @@
 ﻿import React, {ChangeEvent} from 'react';
-import {extractFacilityOwnerInfo, extractRepresentativeInfo} from "@/components/util/pdfExtractor";
+import {
+    extractFacilityOwnerInfo,
+    extractRepresentativeInfo,
+    extractWaterPurveyor
+} from "@/components/util/pdfExtractor";
 import {FacilityOwnerInfo, RepresentativeInfo} from "@/components/types/reportFlowTypes";
 
 type PdfPopulateButtonProps = {
     setFacilityOwnerInfo: (info: FacilityOwnerInfo) => void;
     setRepresentativeInfo: (info: RepresentativeInfo) => void;
+    setWaterPurveyor: (waterPurveyor: string) => void;
 };
 
-export default function PdfPopulateButton({setFacilityOwnerInfo, setRepresentativeInfo}: PdfPopulateButtonProps) {
+export default function PdfPopulateButton({
+                                              setFacilityOwnerInfo,
+                                              setRepresentativeInfo,
+                                              setWaterPurveyor
+                                          }: PdfPopulateButtonProps) {
     const handlePdfUploadForFields = async (e: ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
@@ -15,9 +24,11 @@ export default function PdfPopulateButton({setFacilityOwnerInfo, setRepresentati
         try {
             const extractedFacilityInfo = await extractFacilityOwnerInfo(file);
             const extractedRepInfo = await extractRepresentativeInfo(file);
+            const extractedWaterPurveyor = await extractWaterPurveyor(file);
 
             setFacilityOwnerInfo(extractedFacilityInfo);
             setRepresentativeInfo(extractedRepInfo);
+            setWaterPurveyor(extractedWaterPurveyor);
         } catch (err) {
             console.error('Error reading PDF form:', err);
         }
