@@ -21,7 +21,7 @@ export default function CustomerInfoForm({
                 <div className="space-y-4">
                     <input
                         type="text"
-                        name="FacilityOwner"
+                        name="owner"
                         placeholder="Facility/Owner"
                         className="input input-bordered w-full"
                         value={facilityOwnerInfo.owner || ""}
@@ -29,7 +29,7 @@ export default function CustomerInfoForm({
                     />
                     <input
                         type="text"
-                        name="Address"
+                        name="address"
                         placeholder="Address"
                         className="input input-bordered w-full"
                         value={facilityOwnerInfo.address || ""}
@@ -37,7 +37,7 @@ export default function CustomerInfoForm({
                     />
                     <input
                         type="text"
-                        name="Email"
+                        name="email"
                         placeholder="Email"
                         className="input input-bordered w-full"
                         value={facilityOwnerInfo.email || ""}
@@ -46,7 +46,7 @@ export default function CustomerInfoForm({
                     <div className="grid grid-cols-2 gap-4">
                         <input
                             type="text"
-                            name="Contact"
+                            name="contact"
                             placeholder="Contact"
                             className="input input-bordered w-full"
                             value={facilityOwnerInfo.contact || ""}
@@ -54,7 +54,7 @@ export default function CustomerInfoForm({
                         />
                         <input
                             type="text"
-                            name="Phone"
+                            name="phone"
                             placeholder="Phone"
                             className="input input-bordered w-full"
                             value={facilityOwnerInfo.phone || ""}
@@ -68,7 +68,7 @@ export default function CustomerInfoForm({
                 <div className="space-y-4">
                     <input
                         type="text"
-                        name="OwnerRep"
+                        name="owner"
                         placeholder="Owner Representative"
                         className="input input-bordered w-full"
                         value={representativeInfo.owner || ""}
@@ -76,7 +76,7 @@ export default function CustomerInfoForm({
                     />
                     <input
                         type="text"
-                        name="RepAddress"
+                        name="address"
                         placeholder="Address"
                         className="input input-bordered w-full"
                         value={representativeInfo.address || ""}
@@ -85,7 +85,7 @@ export default function CustomerInfoForm({
                     <div className="grid grid-cols-2 gap-4">
                         <input
                             type="text"
-                            name="PersontoContact"
+                            name="contact"
                             placeholder="Contact"
                             className="input input-bordered w-full"
                             value={representativeInfo.contact || ""}
@@ -93,7 +93,7 @@ export default function CustomerInfoForm({
                         />
                         <input
                             type="text"
-                            name="Phone-0"
+                            name="phone"
                             placeholder="Phone"
                             className="input input-bordered w-full"
                             value={representativeInfo.phone || ""}
