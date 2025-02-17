@@ -1,10 +1,6 @@
 ﻿import React, {ChangeEvent} from 'react';
-import {
-    extractFacilityOwnerInfo,
-    extractRepresentativeInfo,
-    extractWaterPurveyor
-} from "@/components/util/pdfExtractor";
-import {FacilityOwnerInfo, RepresentativeInfo} from "@/components/types/reportFlowTypes";
+import {extractCustomerInfo, extractWaterPurveyor} from "@/components/util/pdfExtractor";
+import {FacilityOwnerInfo, RepresentativeInfo} from "@/components/types/customer";
 
 type PdfPopulateButtonProps = {
     setFacilityOwnerInfo: (info: FacilityOwnerInfo) => void;
@@ -22,8 +18,10 @@ export default function PdfPopulateButton({
         if (!file) return;
 
         try {
-            const extractedFacilityInfo = await extractFacilityOwnerInfo(file);
-            const extractedRepInfo = await extractRepresentativeInfo(file);
+            const extractedCustomerInfo = await extractCustomerInfo(file);
+
+            const extractedFacilityInfo = extractedCustomerInfo.facilityOwnerInfo;
+            const extractedRepInfo = extractedCustomerInfo.representativeInfo;
             const extractedWaterPurveyor = await extractWaterPurveyor(file);
 
             setFacilityOwnerInfo(extractedFacilityInfo);

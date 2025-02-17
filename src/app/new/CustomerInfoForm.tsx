@@ -1,6 +1,6 @@
 ﻿import {ChangeEvent} from "react";
-import {FacilityOwnerInfo, RepresentativeInfo} from "@/components/types/reportFlowTypes";
 import CollapsibleSection from "@/components/collapsible-section";
+import {FacilityOwnerInfo, RepresentativeInfo} from "@/components/types/customer";
 
 interface CustomerInfoFormProps {
     facilityOwnerInfo: FacilityOwnerInfo;

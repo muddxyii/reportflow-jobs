@@ -5,8 +5,8 @@ import CustomerInfoForm from './CustomerInfoForm';
 import FileUploadBox from './FileUploadBox';
 import JobTypeSelector from './JobTypeSelector';
 import PdfPopulateButton from '@/app/new/PdfPopulateButton';
-import {FacilityOwnerInfo, RepresentativeInfo} from "@/components/types/reportFlowTypes";
 import {handleGenerateJob} from "@/app/new/GenerateJob";
+import {FacilityOwnerInfo, RepresentativeInfo} from "@/components/types/customer";
 
 
 export default function NewRFJob() {
