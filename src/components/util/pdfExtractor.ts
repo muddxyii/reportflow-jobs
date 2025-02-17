@@ -12,7 +12,7 @@ export const extractFacilityOwnerInfo = async (pdf: File) => {
     try {
         const extractor = new PDFFieldExtractor();
         const fields = await extractor.extractFields(pdf, {
-            text: ['FacilityOwner', 'Address', 'Email', 'Contact', 'Phone'],
+            text: FacilityOwnerInfo.textFields(),
         });
         facilityOwnerInfo.owner = fields.text.FacilityOwner || '';
         facilityOwnerInfo.address = fields.text.Address || '';
@@ -32,7 +32,7 @@ export const extractRepresentativeInfo = async (pdf: File) => {
     try {
         const extractor = new PDFFieldExtractor();
         const fields = await extractor.extractFields(pdf, {
-            text: ['OwnerRep', 'RepAddress', 'PersontoContact', 'Phone-0'],
+            text: RepresentativeInfo.textFields(),
         });
         repInfo.owner = fields.text.OwnerRep || '';
         repInfo.address = fields.text.RepAddress || '';
@@ -134,14 +134,12 @@ export const extractBackflowInfo = async (pdfs: File[], jobType: string) => {
 //region Specific Device Information
 
 const extractLocationInfo = async (pdf: File): Promise<LocationInfo> => {
-    const locationInfo: LocationInfo = {
-        assemblyAddress: "", onSiteLocation: "", primaryService: ""
-    }
+    const locationInfo = LocationInfo.empty();
 
     try {
         const extractor = new PDFFieldExtractor();
         const fields = await extractor.extractFields(pdf, {
-            text: ['AssemblyAddress', 'On Site Location of Assembly', 'PrimaryBusinessService'],
+            text: LocationInfo.textFields(),
         });
 
         return {
@@ -156,14 +154,12 @@ const extractLocationInfo = async (pdf: File): Promise<LocationInfo> => {
 }
 
 const extractInstallationInfo = async (pdf: File): Promise<InstallationInfo> => {
-    const installationInfo: InstallationInfo = {
-        status: "", protectionType: "", serviceType: ""
-    }
+    const installationInfo = InstallationInfo.empty();
 
     try {
         const extractor = new PDFFieldExtractor();
         const fields = await extractor.extractFields(pdf, {
-            dropdown: ['ServiceType', 'ProtectionType', 'InstallationIs'],
+            dropdown: InstallationInfo.dropdownFields(),
         });
 
         return {
@@ -178,27 +174,13 @@ const extractInstallationInfo = async (pdf: File): Promise<InstallationInfo> => 
 }
 
 const extractDeviceInfo = async (pdf: File): Promise<DeviceInfo> => {
-    const deviceInfo: DeviceInfo = {
-        permitNo: "",
-        manufacturer: "",
-        meterNo: "",
-        modelNo: "",
-        serialNo: "",
-        size: "",
-        type: "",
-        shutoffValves: {
-            status: '',
-            comment: ''
-        },
-        oldComments: "",
-        comments: "",
-    }
+    const deviceInfo = DeviceInfo.empty();
 
     try {
         const extractor = new PDFFieldExtractor();
         const fields = await extractor.extractFields(pdf, {
-            text: ['SerialNo', 'WaterMeterNo', 'Size', 'ModelNo', 'SOVComment', 'ReportComments',],
-            dropdown: ['BFType', 'Manufacturer', 'SOVList',],
+            text: DeviceInfo.textFields(),
+            dropdown: DeviceInfo.dropdownFields(),
         });
 
         return {
@@ -280,69 +262,15 @@ const extractInitialTest = async (pdf: File, emptyOnly: boolean): Promise<Test> 
 }
 
 const extractRepairs = async (pdf: File, emptyOnly: boolean): Promise<Repairs> => {
-    const repairInfo: Repairs = {
-        checkValve1Repairs: {
-            cleaned: false,
-            checkDisc: false,
-            discHolder: false,
-            spring: false,
-            guide: false,
-            seat: false,
-            other: false
-        },
-        checkValve2Repairs: {
-            cleaned: false,
-            checkDisc: false,
-            discHolder: false,
-            spring: false,
-            guide: false,
-            seat: false,
-            other: false
-        },
-        reliefValveRepairs: {
-            cleaned: false,
-            rubberKit: false,
-            discHolder: false,
-            spring: false,
-            guide: false,
-            seat: false,
-            other: false
-        },
-        vacuumBreakerRepairs: {
-            cleaned: false,
-            rubberKit: false,
-            discHolder: false,
-            spring: false,
-            guide: false,
-            seat: false,
-            other: false
-        },
-        testerProfile: {
-            name: '',
-            certNo: '',
-            gaugeKit: '',
-            date: ''
-        }
-    };
+    const repairInfo = Repairs.empty();
     if (emptyOnly) return repairInfo;
 
     try {
         const extractor = new PDFFieldExtractor();
         const fields = await extractor.extractFields(pdf, {
-            text: ['DateRepaired'],
-            checkbox: [// ck1
-                'Ck1Cleaned', 'Ck1CheckDisc', 'Ck1DiscHolder',
-                'Ck1Spring', 'Ck1Guide', 'Ck1Seat', 'Ck1Other',
-                // ck2
-                'Ck2Cleaned', 'Ck2CheckDisc', 'Ck2DiscHolder',
-                'Ck2Spring', 'Ck2Guide', 'Ck2Seat', 'Ck2Other',
-                // rv
-                'RVCleaned', 'RVRubberKit', 'RVDiscHolder',
-                'RVSpring', 'RVGuide', 'RVSeat', 'RVOther',
-                // vb
-                'PVBCleaned', 'PVBRubberKit', 'PVBDiscHolder',
-                'PVBSpring', 'PVBGuide', 'PVBSeat', 'PVBOther'],
-            dropdown: ['RepairedTester', 'RepairedTesterNo', 'RepairedTestKitSerial'],
+            text: Repairs.textFields(),
+            checkbox: Repairs.checkboxFields(),
+            dropdown: Repairs.dropdownFields(),
         });
 
         return {

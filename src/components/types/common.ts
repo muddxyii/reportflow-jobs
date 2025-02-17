@@ -12,3 +12,7 @@ export interface JobDetails {
     jobType: string;
     waterPurveyor: string;
 }
+
+export const JobDetails = {
+    textFields: (): string[] => ['WaterPurveyor']
+}

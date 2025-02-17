@@ -13,7 +13,7 @@ export const TesterProfile = {
         certNo: '',
         gaugeKit: '',
         date: ''
-    })
+    }),
 };
 
 

@@ -9,6 +9,9 @@ export interface FacilityOwnerInfo {
 export const FacilityOwnerInfo = {
     empty(): FacilityOwnerInfo {
         return {owner: "", address: "", email: "", contact: "", phone: ""};
+    },
+    textFields(): string[] {
+        return ['FacilityOwner', 'Address', 'Email', 'Contact', 'Phone'];
     }
 };
 
@@ -22,6 +25,9 @@ export interface RepresentativeInfo {
 export const RepresentativeInfo = {
     empty(): RepresentativeInfo {
         return {owner: "", address: "", contact: "", phone: ""};
+    },
+    textFields(): string[] {
+        return ['OwnerRep', 'RepAddress', 'PersontoContact', 'Phone-0'];
     }
 };
 
@@ -36,5 +42,8 @@ export const CustomerInformation = {
             facilityOwnerInfo: FacilityOwnerInfo.empty(),
             representativeInfo: RepresentativeInfo.empty()
         };
+    },
+    textFields(): string[] {
+        return FacilityOwnerInfo.textFields().concat(RepresentativeInfo.textFields());
     }
 };
