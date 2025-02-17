@@ -65,6 +65,7 @@ export const extractBackflowInfo = async (pdfs: File[], jobType: string) => {
             const fields = await extractor.extractFields(pdf, {
                 text: Backflow.textFields(),
                 dropdown: Backflow.dropdownFields(),
+                checkbox: Backflow.checkboxFields(),
             });
 
             const serialNo = fields.text.SerialNo || 'Unknown';
