@@ -34,5 +34,17 @@ export const Test = {
         reliefValve: ReliefValve.empty(),
         vacuumBreaker: VacuumBreaker.empty(),
         testerProfile: TesterProfile.empty()
-    })
+    }),
+    initialTextFields(): string[] {
+        return ['DateFailed', 'LinePressure', 'InitialCT1', 'InitialCT2',
+            'InitialPSIRV', 'InitialAirInlet', 'InitialCk1PVB'];
+    },
+    initialDropdownFields(): string[] {
+        return ['InitialTester', 'InitialTesterNo', 'InitialTestKitSerial'];
+    },
+    initialCheckboxFields(): string[] {
+        return ['InitialCTBox', 'InitialCT1Leaked', 'InitialCT2Box', 'InitialCT2Leaked',
+            'InitialRVDidNotOpen', 'InitialAirInletLeaked', 'InitialCkPVBLDidNotOpen',
+            'InitialCkPVBLeaked'];
+    },
 };
