@@ -7,6 +7,16 @@ export interface TesterProfile {
     date: string;
 }
 
+export const TesterProfile = {
+    empty: (): TesterProfile => ({
+        name: '',
+        certNo: '',
+        gaugeKit: '',
+        date: ''
+    })
+};
+
+
 export interface Test {
     linePressure: string;
     checkValve1: CheckValve;
@@ -15,3 +25,14 @@ export interface Test {
     vacuumBreaker: VacuumBreaker;
     testerProfile: TesterProfile;
 }
+
+export const Test = {
+    empty: (): Test => ({
+        linePressure: '',
+        checkValve1: CheckValve.empty(),
+        checkValve2: CheckValve.empty(),
+        reliefValve: ReliefValve.empty(),
+        vacuumBreaker: VacuumBreaker.empty(),
+        testerProfile: TesterProfile.empty()
+    })
+};
