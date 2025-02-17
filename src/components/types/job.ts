@@ -1,4 +1,4 @@
-import {LocationInfo, InstallationInfo, DeviceInfo} from "@/components/types/backflow-device";
+import {DeviceInfo, InstallationInfo, LocationInfo} from "@/components/types/backflow-device";
 import {Test} from "@/components/types/testing";
 import {Repairs} from "@/components/types/repairs";
 import {JobDetails, Metadata} from "@/components/types/common";
@@ -11,6 +11,23 @@ export interface Backflow {
     initialTest: Test;
     repairs: Repairs;
     finalTest: Test;
+}
+
+export const Backflow = {
+    empty: (): Backflow => ({
+        locationInfo: LocationInfo.empty(),
+        installationInfo: InstallationInfo.empty(),
+        deviceInfo: DeviceInfo.empty(),
+        initialTest: Test.empty(),
+        repairs: Repairs.empty(),
+        finalTest: Test.empty(),
+    }),
+    textFields: (): string[] => {
+        return LocationInfo.textFields().concat(DeviceInfo.textFields())
+    },
+    dropdownFields: (): string[] => {
+        return DeviceInfo.dropdownFields().concat(InstallationInfo.dropdownFields());
+    }
 }
 
 export interface BackflowList {
