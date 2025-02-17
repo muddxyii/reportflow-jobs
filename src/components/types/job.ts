@@ -23,11 +23,18 @@ export const Backflow = {
         finalTest: Test.empty(),
     }),
     textFields: (): string[] => {
-        return LocationInfo.textFields().concat(DeviceInfo.textFields())
+        return LocationInfo.textFields()
+            .concat(DeviceInfo.textFields())
+            .concat(Test.initialTextFields());
     },
     dropdownFields: (): string[] => {
-        return DeviceInfo.dropdownFields().concat(InstallationInfo.dropdownFields());
-    }
+        return InstallationInfo.dropdownFields()
+            .concat(DeviceInfo.dropdownFields())
+            .concat(Test.initialDropdownFields());
+    },
+    checkboxFields: (): string[] => {
+        return Test.initialCheckboxFields();
+    },
 }
 
 export interface BackflowList {
