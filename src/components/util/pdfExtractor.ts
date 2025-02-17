@@ -1,13 +1,9 @@
 import {PDFDocument} from 'pdf-lib';
-import {
-    DeviceInfo,
-    FacilityOwnerInfo,
-    InstallationInfo,
-    LocationInfo,
-    Repairs,
-    RepresentativeInfo,
-    Test
-} from "@/components/types/reportFlowTypes";
+import {FacilityOwnerInfo, RepresentativeInfo} from "@/components/types/customer";
+import {DeviceInfo, InstallationInfo, LocationInfo} from "@/components/types/backflow-device";
+import {Test} from "@/components/types/testing";
+import {Repairs} from "@/components/types/repairs";
+
 
 //region Field Extractor Helpers
 
@@ -257,12 +253,14 @@ const extractDeviceInfo = async (pdf: File): Promise<DeviceInfo> => {
         shutoffValves: {
             status: '',
             comment: ''
-        }
+        },
+        oldComments: "",
+        comments: "",
     }
 
     try {
         const textFieldNames = [
-            'SerialNo', 'WaterMeterNo', 'Size', 'ModelNo', 'SOVComment',
+            'SerialNo', 'WaterMeterNo', 'Size', 'ModelNo', 'SOVComment', 'ReportComments',
         ];
         const dropdownFieldNames = [
             'BFType', 'Manufacturer', 'SOVList',
@@ -285,6 +283,8 @@ const extractDeviceInfo = async (pdf: File): Promise<DeviceInfo> => {
                 status: fields['SOVList'] || '',
                 comment: fields['SOVComment'] || '',
             },
+            oldComments: fields['ReportComments'] || '',
+            comments: '',
         }
     } catch (error: unknown) {
         console.error(`Error processing ${pdf.name}:`, error);
