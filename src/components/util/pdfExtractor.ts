@@ -1,49 +1,37 @@
-import {FacilityOwnerInfo, RepresentativeInfo} from "@/components/types/customer";
+import {CustomerInformation} from "@/components/types/customer";
 import {DeviceInfo, InstallationInfo, LocationInfo} from "@/components/types/backflow-device";
 import {Test} from "@/components/types/testing";
 import {Repairs} from "@/components/types/repairs";
 import {PDFFieldExtractor} from "@/components/util/pdfFieldExtractor";
 
-
 //region Customer Information
-export const extractFacilityOwnerInfo = async (pdf: File) => {
-    const facilityOwnerInfo = FacilityOwnerInfo.empty();
+export const extractCustomerInfo = async (pdf: File) => {
+    const customerInfo = CustomerInformation.empty();
 
     try {
         const extractor = new PDFFieldExtractor();
         const fields = await extractor.extractFields(pdf, {
-            text: FacilityOwnerInfo.textFields(),
+            text: CustomerInformation.textFields(),
         });
-        facilityOwnerInfo.owner = fields.text.FacilityOwner || '';
-        facilityOwnerInfo.address = fields.text.Address || '';
-        facilityOwnerInfo.email = fields.text.Email || '';
-        facilityOwnerInfo.contact = fields.text.Contact || '';
-        facilityOwnerInfo.phone = fields.text.Phone || '';
+
+        // Facility Owner Info
+        customerInfo.facilityOwnerInfo.owner = fields.text.FacilityOwner || '';
+        customerInfo.facilityOwnerInfo.address = fields.text.Address || '';
+        customerInfo.facilityOwnerInfo.email = fields.text.Email || '';
+        customerInfo.facilityOwnerInfo.contact = fields.text.Contact || '';
+        customerInfo.facilityOwnerInfo.phone = fields.text.Phone || '';
+
+        // Representative Info
+        customerInfo.representativeInfo.owner = fields.text.OwnerRep || '';
+        customerInfo.representativeInfo.address = fields.text.RepAddress || '';
+        customerInfo.representativeInfo.contact = fields.text.PersontoContact || '';
+        customerInfo.representativeInfo.phone = fields.text['Phone-0'] || '';
     } catch (error: unknown) {
         console.error(`Error processing ${pdf.name}:`, error);
     }
 
-    return facilityOwnerInfo;
-};
-
-export const extractRepresentativeInfo = async (pdf: File) => {
-    const repInfo = RepresentativeInfo.empty();
-
-    try {
-        const extractor = new PDFFieldExtractor();
-        const fields = await extractor.extractFields(pdf, {
-            text: RepresentativeInfo.textFields(),
-        });
-        repInfo.owner = fields.text.OwnerRep || '';
-        repInfo.address = fields.text.RepAddress || '';
-        repInfo.contact = fields.text.PersontoContact || '';
-        repInfo.phone = fields.text['Phone-0'] || '';
-    } catch (error: unknown) {
-        console.error(`Error processing ${pdf.name}:`, error);
-    }
-
-    return repInfo;
-};
+    return customerInfo;
+}
 
 export const extractWaterPurveyor = async (pdf: File) => {
     let waterPurveyor = '';
@@ -63,39 +51,6 @@ export const extractWaterPurveyor = async (pdf: File) => {
 
 //endregion
 
-export const extractAllBackflowInfo = async (pdfs: File[]) => {
-    const backflowList: Record<string, {
-        locationInfo: LocationInfo;
-        installationInfo: InstallationInfo;
-        deviceInfo: DeviceInfo;
-        initialTest: Test;
-        repairs: Repairs;
-        finalTest: Test;
-    }> = {};
-
-    for (const pdf of pdfs) {
-        try {
-            const extractor = new PDFFieldExtractor();
-            const fields = await extractor.extractFields(pdf, {
-                text: ['SerialNo'],
-            });
-
-            const serialNo = fields.text.SerialNo || 'Unknown';
-            backflowList[serialNo] = {
-                locationInfo: await extractLocationInfo(pdf),
-                installationInfo: await extractInstallationInfo(pdf),
-                deviceInfo: await extractDeviceInfo(pdf),
-                initialTest: await extractInitialTest(pdf, false),
-                repairs: await extractRepairs(pdf, false),
-                finalTest: await extractFinalTest(pdf, false),
-            }
-        } catch (error: unknown) {
-            console.error(`Error processing ${pdf.name}:`, error);
-        }
-    }
-
-    return backflowList;
-};
 
 export const extractBackflowInfo = async (pdfs: File[], jobType: string) => {
     const backflowList: Record<string, {
