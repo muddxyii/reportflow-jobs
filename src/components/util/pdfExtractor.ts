@@ -1,80 +1,24 @@
-import {PDFDocument} from 'pdf-lib';
 import {FacilityOwnerInfo, RepresentativeInfo} from "@/components/types/customer";
 import {DeviceInfo, InstallationInfo, LocationInfo} from "@/components/types/backflow-device";
 import {Test} from "@/components/types/testing";
 import {Repairs} from "@/components/types/repairs";
+import {PDFFieldExtractor} from "@/components/util/pdfFieldExtractor";
 
-
-//region Field Extractor Helpers
-
-const extractTextFields = async (pdf: File, fieldNames: string[]) => {
-    const arrayBuffer = await pdf.arrayBuffer();
-    const pdfDoc = await PDFDocument.load(arrayBuffer);
-    const form = pdfDoc.getForm();
-
-    const fieldValues: Record<string, string> = {};
-
-    fieldNames.forEach((fieldName) => {
-        const field = form.getTextField(fieldName);
-        //fieldValues[fieldName] = field?.getText() || `Unknown ${fieldName}`;
-        fieldValues[fieldName] = field?.getText() || '';
-    });
-
-    return fieldValues;
-};
-
-const extractDropdownFields = async (pdf: File, fieldNames: string[]) => {
-    const arrayBuffer = await pdf.arrayBuffer();
-    const pdfDoc = await PDFDocument.load(arrayBuffer);
-    const form = pdfDoc.getForm();
-
-    const fieldValues: Record<string, string> = {};
-
-    fieldNames.forEach((fieldName) => {
-        const field = form.getDropdown(fieldName);
-        fieldValues[fieldName] = field?.getSelected()?.[0] || `Unknown ${fieldName}`;
-    });
-
-    return fieldValues;
-};
-
-const stringToBoolean = (str: string): boolean => str.toLowerCase() === 'true';
-
-const extractCheckboxFields = async (pdf: File, fieldNames: string[]) => {
-    const arrayBuffer = await pdf.arrayBuffer();
-    const pdfDoc = await PDFDocument.load(arrayBuffer);
-    const form = pdfDoc.getForm();
-
-    const fieldValues: Record<string, string> = {};
-
-    fieldNames.forEach((fieldName) => {
-        const field = form.getCheckBox(fieldName);
-        fieldValues[fieldName] = field?.isChecked() ? "true" : "false";
-    });
-
-    return fieldValues;
-};
-
-//endregion
 
 //region Customer Information
 export const extractFacilityOwnerInfo = async (pdf: File) => {
-    const facilityOwnerInfo: FacilityOwnerInfo = {
-        owner: '',
-        address: '',
-        email: '',
-        contact: '',
-        phone: ''
-    };
+    const facilityOwnerInfo = FacilityOwnerInfo.empty();
 
     try {
-        const fieldNames = ['FacilityOwner', 'Address', 'Email', 'Contact', 'Phone'];
-        const fields = await extractTextFields(pdf, fieldNames);
-        facilityOwnerInfo.owner = fields['FacilityOwner'] || '';
-        facilityOwnerInfo.address = fields['Address'] || '';
-        facilityOwnerInfo.email = fields['Email'] || '';
-        facilityOwnerInfo.contact = fields['Contact'] || '';
-        facilityOwnerInfo.phone = fields['Phone'] || '';
+        const extractor = new PDFFieldExtractor();
+        const fields = await extractor.extractFields(pdf, {
+            text: ['FacilityOwner', 'Address', 'Email', 'Contact', 'Phone'],
+        });
+        facilityOwnerInfo.owner = fields.text.FacilityOwner || '';
+        facilityOwnerInfo.address = fields.text.Address || '';
+        facilityOwnerInfo.email = fields.text.Email || '';
+        facilityOwnerInfo.contact = fields.text.Contact || '';
+        facilityOwnerInfo.phone = fields.text.Phone || '';
     } catch (error: unknown) {
         console.error(`Error processing ${pdf.name}:`, error);
     }
@@ -83,34 +27,33 @@ export const extractFacilityOwnerInfo = async (pdf: File) => {
 };
 
 export const extractRepresentativeInfo = async (pdf: File) => {
-    const representativeInfo: RepresentativeInfo = {
-        owner: '',
-        address: '',
-        contact: '',
-        phone: '',
-    }
+    const repInfo = RepresentativeInfo.empty();
 
     try {
-        const fieldNames = ['OwnerRep', 'RepAddress', 'PersontoContact', 'Phone-0'];
-        const fields = await extractTextFields(pdf, fieldNames);
-        representativeInfo.owner = fields['OwnerRep'] || '';
-        representativeInfo.address = fields['RepAddress'] || '';
-        representativeInfo.contact = fields['PersontoContact'] || '';
-        representativeInfo.phone = fields['Phone-0'] || '';
+        const extractor = new PDFFieldExtractor();
+        const fields = await extractor.extractFields(pdf, {
+            text: ['OwnerRep', 'RepAddress', 'PersontoContact', 'Phone-0'],
+        });
+        repInfo.owner = fields.text.OwnerRep || '';
+        repInfo.address = fields.text.RepAddress || '';
+        repInfo.contact = fields.text.PersontoContact || '';
+        repInfo.phone = fields.text['Phone-0'] || '';
     } catch (error: unknown) {
         console.error(`Error processing ${pdf.name}:`, error);
     }
 
-    return representativeInfo;
+    return repInfo;
 };
 
 export const extractWaterPurveyor = async (pdf: File) => {
     let waterPurveyor = '';
 
     try {
-        const fieldNames = ['WaterPurveyor'];
-        const fields = await extractDropdownFields(pdf, fieldNames);
-        waterPurveyor = fields['WaterPurveyor'] || '';
+        const extractor = new PDFFieldExtractor();
+        const fields = await extractor.extractFields(pdf, {
+            dropdown: ['WaterPurveyor'],
+        });
+        waterPurveyor = fields.dropdown.WaterPurveyor || '';
     } catch (error: unknown) {
         console.error(`Error processing ${pdf.name}:`, error);
     }
@@ -119,8 +62,6 @@ export const extractWaterPurveyor = async (pdf: File) => {
 };
 
 //endregion
-
-// TODO: ADD EXTRACTOR FOR SHUT OFF VALVES!!!
 
 export const extractAllBackflowInfo = async (pdfs: File[]) => {
     const backflowList: Record<string, {
@@ -134,14 +75,12 @@ export const extractAllBackflowInfo = async (pdfs: File[]) => {
 
     for (const pdf of pdfs) {
         try {
-            const textFieldNames = [
-                'SerialNo'
-            ];
+            const extractor = new PDFFieldExtractor();
+            const fields = await extractor.extractFields(pdf, {
+                text: ['SerialNo'],
+            });
 
-
-            const fields = await extractTextFields(pdf, textFieldNames);
-
-            const serialNo = fields['SerialNo'] || 'Unknown';
+            const serialNo = fields.text.SerialNo || 'Unknown';
             backflowList[serialNo] = {
                 locationInfo: await extractLocationInfo(pdf),
                 installationInfo: await extractInstallationInfo(pdf),
@@ -170,13 +109,12 @@ export const extractBackflowInfo = async (pdfs: File[], jobType: string) => {
 
     for (const pdf of pdfs) {
         try {
-            const textFieldNames = [
-                'SerialNo'
-            ];
+            const extractor = new PDFFieldExtractor();
+            const fields = await extractor.extractFields(pdf, {
+                text: ['SerialNo'],
+            });
 
-            const fields = await extractTextFields(pdf, textFieldNames);
-
-            const serialNo = fields['SerialNo'] || 'Unknown';
+            const serialNo = fields.text.SerialNo || 'Unknown';
             backflowList[serialNo] = {
                 locationInfo: await extractLocationInfo(pdf),
                 installationInfo: await extractInstallationInfo(pdf),
@@ -201,16 +139,15 @@ const extractLocationInfo = async (pdf: File): Promise<LocationInfo> => {
     }
 
     try {
-        const textFieldNames = [
-            'AssemblyAddress', 'On Site Location of Assembly', 'PrimaryBusinessService',
-        ];
-
-        const fields = await extractTextFields(pdf, textFieldNames);
+        const extractor = new PDFFieldExtractor();
+        const fields = await extractor.extractFields(pdf, {
+            text: ['AssemblyAddress', 'On Site Location of Assembly', 'PrimaryBusinessService'],
+        });
 
         return {
-            assemblyAddress: fields['AssemblyAddress'] || '',
-            onSiteLocation: fields['On Site Location of Assembly'] || '',
-            primaryService: fields['PrimaryBusinessService'] || '',
+            assemblyAddress: fields.text['AssemblyAddress'] || '',
+            onSiteLocation: fields.text['On Site Location of Assembly'] || '',
+            primaryService: fields.text['PrimaryBusinessService'] || '',
         }
     } catch (error: unknown) {
         console.error(`Error processing ${pdf.name}:`, error);
@@ -224,16 +161,15 @@ const extractInstallationInfo = async (pdf: File): Promise<InstallationInfo> => 
     }
 
     try {
-        const dropdownFieldNames = [
-            'ServiceType', 'ProtectionType', 'InstallationIs'
-        ];
-
-        const fields = await extractDropdownFields(pdf, dropdownFieldNames);
+        const extractor = new PDFFieldExtractor();
+        const fields = await extractor.extractFields(pdf, {
+            dropdown: ['ServiceType', 'ProtectionType', 'InstallationIs'],
+        });
 
         return {
-            status: fields['InstallationIs'] || '',
-            protectionType: fields['ProtectionType'] || '',
-            serviceType: fields['ServiceType'] || ''
+            status: fields.dropdown['InstallationIs'] || '',
+            protectionType: fields.dropdown['ProtectionType'] || '',
+            serviceType: fields.dropdown['ServiceType'] || ''
         }
     } catch (error: unknown) {
         console.error(`Error processing ${pdf.name}:`, error);
@@ -259,31 +195,25 @@ const extractDeviceInfo = async (pdf: File): Promise<DeviceInfo> => {
     }
 
     try {
-        const textFieldNames = [
-            'SerialNo', 'WaterMeterNo', 'Size', 'ModelNo', 'SOVComment', 'ReportComments',
-        ];
-        const dropdownFieldNames = [
-            'BFType', 'Manufacturer', 'SOVList',
-        ]
-
-        const fields = {
-            ...await extractTextFields(pdf, textFieldNames),
-            ...await extractDropdownFields(pdf, dropdownFieldNames)
-        };
+        const extractor = new PDFFieldExtractor();
+        const fields = await extractor.extractFields(pdf, {
+            text: ['SerialNo', 'WaterMeterNo', 'Size', 'ModelNo', 'SOVComment', 'ReportComments',],
+            dropdown: ['BFType', 'Manufacturer', 'SOVList',],
+        });
 
         return {
-            permitNo: fields['PermitAccountNo'] || '',
-            meterNo: fields['WaterMeterNo'] || '',
-            serialNo: fields['SerialNo'] || '',
-            type: fields['BFType'] || '',
-            manufacturer: fields['Manufacturer'] || '',
-            size: fields['Size'] || '',
-            modelNo: fields['ModelNo'] || '',
+            permitNo: fields.text['PermitAccountNo'] || '',
+            meterNo: fields.text['WaterMeterNo'] || '',
+            serialNo: fields.text['SerialNo'] || '',
+            type: fields.dropdown['BFType'] || '',
+            manufacturer: fields.dropdown['Manufacturer'] || '',
+            size: fields.text['Size'] || '',
+            modelNo: fields.text['ModelNo'] || '',
             shutoffValves: {
-                status: fields['SOVList'] || '',
-                comment: fields['SOVComment'] || '',
+                status: fields.dropdown['SOVList'] || '',
+                comment: fields.text['SOVComment'] || '',
             },
-            oldComments: fields['ReportComments'] || '',
+            oldComments: fields.text['ReportComments'] || '',
             comments: '',
         }
     } catch (error: unknown) {
@@ -293,95 +223,54 @@ const extractDeviceInfo = async (pdf: File): Promise<DeviceInfo> => {
 }
 
 const extractInitialTest = async (pdf: File, emptyOnly: boolean): Promise<Test> => {
-    const initialTest: Test = {
-        linePressure: '',
-        checkValve1: {
-            value: '',
-            closedTight: false
-        },
-        checkValve2: {
-            value: '',
-            closedTight: false
-        },
-        reliefValve: {
-            value: '',
-            opened: false
-        },
-        vacuumBreaker: {
-            backPressure: false,
-            airInlet: {
-                value: '',
-                leaked: false,
-                opened: false
-            },
-            check: {
-                value: '',
-                leaked: false
-            },
-        },
-        testerProfile: {
-            name: '',
-            certNo: '',
-            gaugeKit: '',
-            date: ''
-        }
-    };
+    const initialTest = Test.empty();
     if (emptyOnly) return initialTest;
 
     try {
-        const textFieldNames = [
-            'LinePressure', 'InitialCT1', 'InitialCT2',
-            'InitialPSIRV', 'InitialAirInlet', 'InitialCk1PVB',
-            'DateFailed'
-        ];
-        const checkboxFieldNames = [
-            'InitialCTBox', 'InitialCT1Leaked',
-            'InitialCT2Box', 'InitialCT2Leaked',
-            'InitialRVDidNotOpen',
-            'InitialAirInletLeaked', 'InitialCkPVBLDidNotOpen', 'InitialCkPVBLeaked',
-        ];
-        const dropdownFieldNames = [
-            'BackPressure',
-            'InitialTester', 'InitialTesterNo', 'InitialTestKitSerial',
-        ]
-
-        const fields = {
-            ...await extractTextFields(pdf, textFieldNames),
-            ...await extractCheckboxFields(pdf, checkboxFieldNames),
-            ...await extractDropdownFields(pdf, dropdownFieldNames)
-        };
+        const extractor = new PDFFieldExtractor();
+        const fields = await extractor.extractFields(pdf, {
+            text: ['LinePressure', 'InitialCT1', 'InitialCT2',
+                'InitialPSIRV', 'InitialAirInlet', 'InitialCk1PVB',
+                'DateFailed'],
+            checkbox: ['InitialCTBox', 'InitialCT1Leaked',
+                'InitialCT2Box', 'InitialCT2Leaked',
+                'InitialRVDidNotOpen',
+                'InitialAirInletLeaked', 'InitialCkPVBLDidNotOpen', 'InitialCkPVBLeaked',],
+            dropdown: ['BackPressure',
+                'InitialTester', 'InitialTesterNo', 'InitialTestKitSerial'],
+        });
 
         return {
-            linePressure: fields['LinePressure'] || '',
+            linePressure: fields.text['LinePressure'] || '',
             checkValve1: {
-                value: fields['InitialCT1'] || '',
-                closedTight: stringToBoolean(fields['InitialCTBox']),
+                value: fields.text['InitialCT1'] || '',
+                closedTight: fields.checkbox['InitialCTBox'],
             },
             checkValve2: {
-                value: fields['InitialCT2'] || '',
-                closedTight: stringToBoolean(fields['InitialCT2Box']),
+                value: fields.text['InitialCT2'] || '',
+                closedTight: fields.checkbox['InitialCT2Box'],
             },
             reliefValve: {
-                value: fields['InitialPSIRV'] || '',
-                opened: !stringToBoolean(fields['InitialRVDidNotOpen']),
+                value: fields.text['InitialPSIRV'] || '',
+                opened: !fields.checkbox['InitialRVDidNotOpen'],
             },
             vacuumBreaker: {
-                backPressure: stringToBoolean(fields['BackPressure']),
+                backPressure: stringToBoolean(fields.dropdown['BackPressure']),
                 airInlet: {
-                    value: fields['InitialAirInlet'] || '',
-                    leaked: stringToBoolean(fields['InitialAirInletLeaked']),
-                    opened: stringToBoolean(fields['InitialCkPVBLDidNotOpen']),
+                    value: fields.text['InitialAirInlet'] || '',
+                    leaked: fields.checkbox['InitialAirInletLeaked'],
+                    opened: fields.checkbox['InitialCkPVBLDidNotOpen'],
                 },
                 check: {
-                    value: fields['InitialCk1PVB'] || '',
-                    leaked: stringToBoolean(fields['InitialCkPVBLeaked']),
+                    value: fields.text['InitialCk1PVB'] || '',
+                    leaked: fields.checkbox['InitialCkPVBLeaked'],
                 },
             },
             testerProfile: {
-                name: fields['InitialTester'] || '',
-                certNo: fields['InitialTesterNo'] || '',
-                gaugeKit: fields['InitialTestKitSerial'] || '',
-                date: fields['DateFailed'] || '',
+                name: fields.dropdown['InitialTester'] || '',
+                certNo: fields.dropdown['InitialTesterNo'] || '',
+                gaugeKit: fields.dropdown['InitialTestKitSerial'] || '',
+                date: fields.text['DateFailed'] || '',
             }
         };
     } catch (error: unknown) {
@@ -438,75 +327,66 @@ const extractRepairs = async (pdf: File, emptyOnly: boolean): Promise<Repairs> =
     if (emptyOnly) return repairInfo;
 
     try {
-        const textFieldNames = [
-            'DateRepaired'
-        ];
-        const checkboxFieldNames = [
-            // ck1
-            'Ck1Cleaned', 'Ck1CheckDisc', 'Ck1DiscHolder',
-            'Ck1Spring', 'Ck1Guide', 'Ck1Seat', 'Ck1Other',
-            // ck2
-            'Ck2Cleaned', 'Ck2CheckDisc', 'Ck2DiscHolder',
-            'Ck2Spring', 'Ck2Guide', 'Ck2Seat', 'Ck2Other',
-            // rv
-            'RVCleaned', 'RVRubberKit', 'RVDiscHolder',
-            'RVSpring', 'RVGuide', 'RVSeat', 'RVOther',
-            // vb
-            'PVBCleaned', 'PVBRubberKit', 'PVBDiscHolder',
-            'PVBSpring', 'PVBGuide', 'PVBSeat', 'PVBOther',
-        ];
-        const dropdownFieldNames = [
-            'RepairedTester', 'RepairedTesterNo', 'RepairedTestKitSerial',
-        ]
-
-        const fields = {
-            ...await extractTextFields(pdf, textFieldNames),
-            ...await extractCheckboxFields(pdf, checkboxFieldNames),
-            ...await extractDropdownFields(pdf, dropdownFieldNames)
-        };
+        const extractor = new PDFFieldExtractor();
+        const fields = await extractor.extractFields(pdf, {
+            text: ['DateRepaired'],
+            checkbox: [// ck1
+                'Ck1Cleaned', 'Ck1CheckDisc', 'Ck1DiscHolder',
+                'Ck1Spring', 'Ck1Guide', 'Ck1Seat', 'Ck1Other',
+                // ck2
+                'Ck2Cleaned', 'Ck2CheckDisc', 'Ck2DiscHolder',
+                'Ck2Spring', 'Ck2Guide', 'Ck2Seat', 'Ck2Other',
+                // rv
+                'RVCleaned', 'RVRubberKit', 'RVDiscHolder',
+                'RVSpring', 'RVGuide', 'RVSeat', 'RVOther',
+                // vb
+                'PVBCleaned', 'PVBRubberKit', 'PVBDiscHolder',
+                'PVBSpring', 'PVBGuide', 'PVBSeat', 'PVBOther'],
+            dropdown: ['RepairedTester', 'RepairedTesterNo', 'RepairedTestKitSerial'],
+        });
 
         return {
             checkValve1Repairs: {
-                cleaned: stringToBoolean(fields['Ck1Cleaned']),
-                checkDisc: stringToBoolean(fields['Ck1CheckDisc']),
-                discHolder: stringToBoolean(fields['Ck1DiscHolder']),
-                spring: stringToBoolean(fields['Ck1Spring']),
-                guide: stringToBoolean(fields['Ck1Guide']),
-                seat: stringToBoolean(fields['Ck1Seat']),
-                other: stringToBoolean(fields['Ck1Other']),
+                cleaned: fields.checkbox['Ck1Cleaned'],
+                checkDisc: fields.checkbox['Ck1CheckDisc'],
+                discHolder: fields.checkbox['Ck1DiscHolder'],
+                spring: fields.checkbox['Ck1Spring'],
+                guide: fields.checkbox['Ck1Guide'],
+                seat: fields.checkbox['Ck1Seat'],
+                other: fields.checkbox['Ck1Other'],
             },
             checkValve2Repairs: {
-                cleaned: stringToBoolean(fields['Ck2Cleaned']),
-                checkDisc: stringToBoolean(fields['Ck2CheckDisc']),
-                discHolder: stringToBoolean(fields['Ck2DiscHolder']),
-                spring: stringToBoolean(fields['Ck2Spring']),
-                guide: stringToBoolean(fields['Ck2Guide']),
-                seat: stringToBoolean(fields['Ck2Seat']),
-                other: stringToBoolean(fields['Ck2Other']),
+                cleaned: fields.checkbox['Ck2Cleaned'],
+                checkDisc: fields.checkbox['Ck2CheckDisc'],
+                discHolder: fields.checkbox['Ck2DiscHolder'],
+                spring: fields.checkbox['Ck2Spring'],
+                guide: fields.checkbox['Ck2Guide'],
+                seat: fields.checkbox['Ck2Seat'],
+                other: fields.checkbox['Ck2Other'],
             },
             reliefValveRepairs: {
-                cleaned: stringToBoolean(fields['RVCleaned']),
-                rubberKit: stringToBoolean(fields['RVRubberKit']),
-                discHolder: stringToBoolean(fields['RVDiscHolder']),
-                spring: stringToBoolean(fields['RVSpring']),
-                guide: stringToBoolean(fields['RVGuide']),
-                seat: stringToBoolean(fields['RVSeat']),
-                other: stringToBoolean(fields['RVOther']),
+                cleaned: fields.checkbox['RVCleaned'],
+                rubberKit: fields.checkbox['RVRubberKit'],
+                discHolder: fields.checkbox['RVDiscHolder'],
+                spring: fields.checkbox['RVSpring'],
+                guide: fields.checkbox['RVGuide'],
+                seat: fields.checkbox['RVSeat'],
+                other: fields.checkbox['RVOther'],
             },
             vacuumBreakerRepairs: {
-                cleaned: stringToBoolean(fields['PVBCleaned']),
-                rubberKit: stringToBoolean(fields['PVBRubberKit']),
-                discHolder: stringToBoolean(fields['PVBDiscHolder']),
-                spring: stringToBoolean(fields['PVBSpring']),
-                guide: stringToBoolean(fields['PVBGuide']),
-                seat: stringToBoolean(fields['PVBSeat']),
-                other: stringToBoolean(fields['PVBOther']),
+                cleaned: fields.checkbox['PVBCleaned'],
+                rubberKit: fields.checkbox['PVBRubberKit'],
+                discHolder: fields.checkbox['PVBDiscHolder'],
+                spring: fields.checkbox['PVBSpring'],
+                guide: fields.checkbox['PVBGuide'],
+                seat: fields.checkbox['PVBSeat'],
+                other: fields.checkbox['PVBOther'],
             },
             testerProfile: {
-                name: fields['RepairedTester'] || '',
-                certNo: fields['RepairedTesterNo'] || '',
-                gaugeKit: fields['RepairedTestKitSerial'] || '',
-                date: fields['DateRepaired'] || '',
+                name: fields.dropdown['RepairedTester'] || '',
+                certNo: fields.dropdown['RepairedTesterNo'] || '',
+                gaugeKit: fields.dropdown['RepairedTestKitSerial'] || '',
+                date: fields.text['DateRepaired'] || '',
             }
         };
     } catch (error: unknown) {
@@ -516,100 +396,64 @@ const extractRepairs = async (pdf: File, emptyOnly: boolean): Promise<Repairs> =
 }
 
 const extractFinalTest = async (pdf: File, emptyOnly: boolean): Promise<Test> => {
-    const finalTest: Test = {
-        linePressure: '',
-        checkValve1: {
-            value: '',
-            closedTight: false
-        },
-        checkValve2: {
-            value: '',
-            closedTight: false
-        },
-        reliefValve: {
-            value: '',
-            opened: false
-        },
-        vacuumBreaker: {
-            backPressure: false,
-            airInlet: {
-                value: '',
-                leaked: false,
-                opened: false
-            },
-            check: {
-                value: '',
-                leaked: false
-            },
-        },
-        testerProfile: {
-            name: '',
-            certNo: '',
-            gaugeKit: '',
-            date: ''
-        }
-    };
+    const finalTest = Test.empty();
     if (emptyOnly) return finalTest;
 
     try {
-        const textFieldNames = [
-            'LinePressure',
-            'FinalCT1', 'FinalCT2',
-            'FinalRV',
-            'FinalAirInlet', 'Check Valve',
-            'DatePassed'
-        ];
-        const checkboxFieldNames = [
-            'FinalCT1Box', 'FinalCT2Box',
-        ];
-        const dropdownFieldNames = [
-            'BackPressure',
-            'FinalTester', 'FinalTesterNo', 'FinalTestKitSerial',
-        ]
-
-        const fields = {
-            ...await extractTextFields(pdf, textFieldNames),
-            ...await extractCheckboxFields(pdf, checkboxFieldNames),
-            ...await extractDropdownFields(pdf, dropdownFieldNames)
-        };
+        const extractor = new PDFFieldExtractor();
+        const fields = await extractor.extractFields(pdf, {
+            text: ['LinePressure',
+                'FinalCT1', 'FinalCT2',
+                'FinalRV',
+                'FinalAirInlet', 'Check Valve',
+                'DatePassed'],
+            checkbox: [
+                'FinalCT1Box', 'FinalCT2Box',],
+            dropdown: ['BackPressure',
+                'FinalTester', 'FinalTesterNo', 'FinalTestKitSerial',],
+        });
 
         return {
-            linePressure: fields['LinePressure'] || '',
+            linePressure: fields.text['LinePressure'] || '',
             checkValve1: {
-                value: fields['FinalCT1'] || '',
-                closedTight: stringToBoolean(fields['FinalCT1Box']),
+                value: fields.text['FinalCT1'] || '',
+                closedTight: fields.checkbox['FinalCT1Box'],
             },
             checkValve2: {
-                value: fields['FinalCT2'] || '',
-                closedTight: stringToBoolean(fields['FinalCT2Box']),
+                value: fields.text['FinalCT2'] || '',
+                closedTight: fields.checkbox['FinalCT2Box'],
             },
             reliefValve: {
-                value: fields['FinalRV'] || '',
+                value: fields.text['FinalRV'] || '',
                 opened: true,
             },
             vacuumBreaker: {
-                backPressure: stringToBoolean(fields['BackPressure']),
+                backPressure: stringToBoolean(fields.dropdown['BackPressure']),
                 airInlet: {
-                    value: fields['InitialAirInlet'] || '',
+                    value: fields.text['InitialAirInlet'] || '',
                     leaked: false,
                     opened: true,
                 },
                 check: {
-                    value: fields['Check Valve'] || '',
+                    value: fields.text['Check Valve'] || '',
                     leaked: false,
                 },
             },
             testerProfile: {
-                name: fields['FinalTester'] || '',
-                certNo: fields['FinalTesterNo'] || '',
-                gaugeKit: fields['FinalTestKitSerial'] || '',
-                date: fields['DatePassed'] || '',
+                name: fields.dropdown['FinalTester'] || '',
+                certNo: fields.dropdown['FinalTesterNo'] || '',
+                gaugeKit: fields.dropdown['FinalTestKitSerial'] || '',
+                date: fields.text['DatePassed'] || '',
             }
         };
     } catch (error: unknown) {
         console.error(`Error processing ${pdf.name}:`, error);
         return finalTest;
     }
+}
+
+function stringToBoolean(str: string): boolean {
+    return str === 'YES';
 }
 
 //endregion
