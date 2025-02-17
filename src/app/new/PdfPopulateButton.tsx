@@ -4,7 +4,7 @@ import {
     extractRepresentativeInfo,
     extractWaterPurveyor
 } from "@/components/util/pdfExtractor";
-import {FacilityOwnerInfo, RepresentativeInfo} from "@/components/types/reportFlowTypes";
+import {FacilityOwnerInfo, RepresentativeInfo} from "@/components/types/customer";
 
 type PdfPopulateButtonProps = {
     setFacilityOwnerInfo: (info: FacilityOwnerInfo) => void;
