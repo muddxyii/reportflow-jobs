@@ -1,12 +1,12 @@
 import React from 'react';
 
-interface ClearOptions {
+export interface ClearOptions {
     keepGenericInfo: boolean;
     keepTestData: boolean;
     keepComments: boolean;
-    keepInitialTestData?: boolean;
-    keepRepairData?: boolean;
-    keepFinalTestData?: boolean;
+    keepInitialTestData: boolean;
+    keepRepairData: boolean;
+    keepFinalTestData: boolean;
 }
 
 interface PdfClearOptionsProps {

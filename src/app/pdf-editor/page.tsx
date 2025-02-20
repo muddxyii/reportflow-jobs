@@ -3,6 +3,7 @@
 import PdfUploadBox from "@/components/pdf-upload-box";
 import React, {useState} from "react";
 import PdfClearOptions from "@/app/pdf-editor/PdfClearOptions";
+import {handleGeneratePdfs} from "@/app/pdf-editor/GeneratePdfs";
 
 export default function PdfEditor() {
     const [pdfs, setPdfs] = useState<File[]>([]);
@@ -32,6 +33,11 @@ export default function PdfEditor() {
         }));
     };
 
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        await handleGeneratePdfs(clearOptions, pdfs)
+    }
+
     return (
         <main className="min-h-screen bg-base-300 p-8">
             <div className="max-w-2xl mx-auto">
@@ -43,18 +49,21 @@ export default function PdfEditor() {
                             </div>
                         </div>
 
-                        <PdfClearOptions
-                            clearOptions={clearOptions}
-                            onOptionChange={handleClearOptionsChange}
-                        />
+                        <form onSubmit={handleSubmit} className="space-y-4">
 
-                        <PdfUploadBox pdfs={pdfs} onUpdateFiles={setPdfs}/>
+                            <PdfClearOptions
+                                clearOptions={clearOptions}
+                                onOptionChange={handleClearOptionsChange}
+                            />
 
-                        <div className="card-actions justify-end">
-                            <button type="submit" className="btn btn-primary">
-                                Download Updated PDF(s)
-                            </button>
-                        </div>
+                            <PdfUploadBox pdfs={pdfs} onUpdateFiles={setPdfs}/>
+
+                            <div className="card-actions justify-end">
+                                <button type="submit" className="btn btn-primary">
+                                    Download Updated PDF(s)
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
