@@ -1,5 +1,5 @@
 import {ClearOptions} from "@/app/pdf-editor/PdfClearOptions";
-import {PDFProcessor} from "@/components/util/pdfProcessor";
+import {PDFProcessor, PDFProcessorOptions} from "@/components/util/pdfProcessor";
 
 export const handleGeneratePdfs = async (
     clearOptions: ClearOptions,
@@ -14,13 +14,7 @@ export const handleGeneratePdfs = async (
 
 const generateSinglePdf = async (clearOptions: ClearOptions, pdf: File) => {
     try {
-        const modifiedPdfBlob = await PDFProcessor.clearPDF(pdf, {
-            KeepInfo: clearOptions.keepGenericInfo,
-            KeepComments: clearOptions.keepComments,
-            KeepInitialTestData: clearOptions.keepInitialTestData,
-            KeepRepairData: clearOptions.keepRepairData,
-            KeepFinalTestData: clearOptions.keepFinalTestData,
-        })
+        const modifiedPdfBlob = await PDFProcessor.clearPDF(pdf, getProcessorOptions(clearOptions))
 
         const url = URL.createObjectURL(modifiedPdfBlob.blob);
         const link = document.createElement('a');
@@ -36,13 +30,7 @@ const generateSinglePdf = async (clearOptions: ClearOptions, pdf: File) => {
 
 const generateMultiplePdfs = async (clearOptions: ClearOptions, pdfs: File[]) => {
     try {
-        const zipBlob = await PDFProcessor.clearMultiplePDFs(pdfs, {
-            KeepInfo: clearOptions.keepGenericInfo,
-            KeepComments: clearOptions.keepComments,
-            KeepInitialTestData: clearOptions.keepInitialTestData,
-            KeepRepairData: clearOptions.keepRepairData,
-            KeepFinalTestData: clearOptions.keepFinalTestData,
-        })
+        const zipBlob = await PDFProcessor.clearMultiplePDFs(pdfs, getProcessorOptions(clearOptions))
 
         const url = URL.createObjectURL(zipBlob);
         const link = document.createElement('a');
@@ -53,5 +41,15 @@ const generateMultiplePdfs = async (clearOptions: ClearOptions, pdfs: File[]) =>
     } catch (e) {
         console.error(e);
         throw e;
+    }
+}
+
+const getProcessorOptions = (clearOptions: ClearOptions): PDFProcessorOptions => {
+    return {
+        KeepInfo: clearOptions.keepGenericInfo,
+        KeepComments: clearOptions.keepComments,
+        KeepInitialTestData: clearOptions.keepTestData ? clearOptions.keepInitialTestData : false,
+        KeepRepairData: clearOptions.keepTestData ? clearOptions.keepRepairData : false,
+        KeepFinalTestData: clearOptions.keepTestData ? clearOptions.keepFinalTestData : false,
     }
 }

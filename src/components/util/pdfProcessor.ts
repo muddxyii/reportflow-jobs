@@ -130,4 +130,5 @@ class PDFProcessor {
     }
 }
 
-export {PDFProcessor, PDFFieldManager, type PDFProcessorOptions};
+export {PDFProcessor, PDFFieldManager};
+export type {PDFProcessorOptions};
