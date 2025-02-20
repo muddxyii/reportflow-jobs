@@ -1,7 +1,7 @@
-﻿import { Upload, Trash2 } from "lucide-react";
-import React, { useState } from "react";
+import {Trash2, Upload} from "lucide-react";
+import React, {useState} from "react";
 
-export default function FileUploadBox({
+export default function PdfUploadBox({
                                          pdfs,
                                          onUpdateFiles,
                                      }: {
@@ -60,7 +60,7 @@ export default function FileUploadBox({
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
             >
-                <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                <Upload className="mx-auto h-12 w-12 text-gray-400"/>
                 <div>
                     <label className="btn btn-primary">
                         Upload PDFs
@@ -97,7 +97,7 @@ export default function FileUploadBox({
                                         className="btn btn-error btn-sm"
                                         onClick={() => handleFileRemove(index)}
                                     >
-                                        <Trash2 className="w-4 h-4" />
+                                        <Trash2 className="w-4 h-4"/>
                                     </button>
                                 </li>
                             ))}

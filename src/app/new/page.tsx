@@ -2,11 +2,11 @@
 
 import React, {ChangeEvent, useState} from 'react';
 import CustomerInfoForm from './CustomerInfoForm';
-import FileUploadBox from './FileUploadBox';
 import JobTypeSelector from './JobTypeSelector';
 import PdfPopulateButton from '@/app/new/PdfPopulateButton';
 import {handleGenerateJob} from "@/app/new/GenerateJob";
 import {FacilityOwnerInfo, RepresentativeInfo} from "@/components/types/customer";
+import PdfUploadBox from "@/components/pdf-upload-box";
 
 
 export default function NewRFJob() {
@@ -104,7 +104,7 @@ export default function NewRFJob() {
                                 onRepresentativeChange={handleInfoChange(setRepresentativeInfo)}
                             />
 
-                            <FileUploadBox pdfs={pdfs} onUpdateFiles={setPdfs}/>
+                            <PdfUploadBox pdfs={pdfs} onUpdateFiles={setPdfs}/>
 
                             <div className="card-actions justify-end">
                                 <button type="submit" className="btn btn-primary">
