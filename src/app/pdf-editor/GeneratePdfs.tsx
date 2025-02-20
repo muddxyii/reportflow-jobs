@@ -29,11 +29,29 @@ const generateSinglePdf = async (clearOptions: ClearOptions, pdf: File) => {
         link.click();
         URL.revokeObjectURL(url);
     } catch (e) {
-        console.error(e)
+        console.error(e);
         throw e;
     }
 }
 
 const generateMultiplePdfs = async (clearOptions: ClearOptions, pdfs: File[]) => {
+    try {
+        const zipBlob = await PDFProcessor.clearMultiplePDFs(pdfs, {
+            KeepInfo: clearOptions.keepGenericInfo,
+            KeepComments: clearOptions.keepComments,
+            KeepInitialTestData: clearOptions.keepInitialTestData,
+            KeepRepairData: clearOptions.keepRepairData,
+            KeepFinalTestData: clearOptions.keepFinalTestData,
+        })
 
+        const url = URL.createObjectURL(zipBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'processed_pdfs.zip'
+        link.click();
+        URL.revokeObjectURL(url);
+    } catch (e) {
+        console.error(e);
+        throw e;
+    }
 }

@@ -1,4 +1,5 @@
 import {PDFCheckBox, PDFDocument, PDFDropdown, PDFField, PDFOptionList, PDFRadioGroup, PDFTextField} from 'pdf-lib';
+import JSZip from "jszip";
 
 interface PDFProcessorOptions {
     KeepInfo?: boolean;
@@ -62,10 +63,8 @@ class PDFFieldManager {
 
 class PDFProcessor {
     static async clearPDF(pdfFile: File, options: PDFProcessorOptions = {}): Promise<{ blob: Blob; serialNo: string }> {
-        // Convert File to ArrayBuffer
         const pdfBuffer = await pdfFile.arrayBuffer();
 
-        // Load the PDF document
         const pdfDoc = await PDFDocument.load(pdfBuffer);
         const form = pdfDoc.getForm();
 
@@ -80,15 +79,27 @@ class PDFProcessor {
             this.clearField(field);
         });
 
-        // Save the modified PDF as Uint8Array
         const modifiedPdfBytes = await pdfDoc.save();
 
-        // Convert to Blob and return
         return {
             blob: new Blob([modifiedPdfBytes], {type: 'application/pdf'}),
             serialNo: serialNoField ? serialNoField : 'UnknownSerialNo'
         }
     }
+
+    static async clearMultiplePDFs(pdfFiles: File[], options: PDFProcessorOptions = {}): Promise<Blob> {
+        const zip = new JSZip();
+
+        const processPromises = pdfFiles.map(async (pdfFile) => {
+            const result = await this.clearPDF(pdfFile, options);
+            const serialNo = result.serialNo || 'UnknownSerialNo';
+            zip.file(`${serialNo}.pdf`, result.blob);
+        });
+
+        await Promise.all(processPromises);
+        return await zip.generateAsync({type: 'blob'});
+    }
+
 
     private static shouldKeepField(fieldName: string, options: PDFProcessorOptions): boolean {
         return <boolean>(
