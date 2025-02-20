@@ -9,10 +9,23 @@ export default function PdfEditor() {
     const [clearOptions, setClearOptions] = useState({
         keepGenericInfo: false,
         keepTestData: false,
-        keepComments: false
+        keepComments: false,
+        keepInitialTestData: false,
+        keepRepairData: false,
+        keepFinalTestData: false,
     });
 
-    const handleCheckboxChange = (option: keyof typeof clearOptions) => {
+    const handleClearOptionsChange = (option: keyof typeof clearOptions) => {
+        if (option === 'keepTestData' && !clearOptions.keepTestData) {
+            // If keepTestData is being unchecked, reset all  sub options
+            setClearOptions(prev => ({
+                ...prev,
+                keepInitialTestData: true,
+                keepRepairData: false,
+                keepFinalTestData: false
+            }));
+        }
+
         setClearOptions(prev => ({
             ...prev,
             [option]: !prev[option]
@@ -32,7 +45,7 @@ export default function PdfEditor() {
 
                         <PdfClearOptions
                             clearOptions={clearOptions}
-                            onOptionChange={handleCheckboxChange}
+                            onOptionChange={handleClearOptionsChange}
                         />
 
                         <PdfUploadBox pdfs={pdfs} onUpdateFiles={setPdfs}/>
