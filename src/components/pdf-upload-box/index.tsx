@@ -59,7 +59,7 @@ export default function PdfUploadBox({
 
     return (
         <div className="space-y-4">
-            <h2 className="text-xl font-semibold">Backflow Devices</h2>
+            <h2 className="text-xl font-semibold">Backflow PDFs</h2>
             <div
                 className={`border-2 rounded-lg p-8 text-center space-y-4 ${
                     isDragging ? "border-blue-500" : "border-dashed"
