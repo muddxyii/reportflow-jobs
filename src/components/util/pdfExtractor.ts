@@ -49,7 +49,7 @@ export const extractWaterPurveyor = async (pdf: File) => {
     return waterPurveyor;
 };
 
-export const extractBackflowInfo = async (pdfs: File[], jobType: string) => {
+export const extractBackflowInfo = async (pdfs: File | File[], jobType: string) => {
     const backflowList: Record<string, {
         locationInfo: LocationInfo;
         installationInfo: InstallationInfo;
@@ -59,7 +59,9 @@ export const extractBackflowInfo = async (pdfs: File[], jobType: string) => {
         finalTest: Test;
     }> = {};
 
-    for (const pdf of pdfs) {
+    const pdfArray = Array.isArray(pdfs) ? pdfs : [pdfs];
+
+    for (const pdf of pdfArray) {
         try {
             const extractor = new PDFFieldExtractor();
             const fields = await extractor.extractFields(pdf, {
