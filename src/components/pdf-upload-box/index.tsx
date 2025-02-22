@@ -46,11 +46,23 @@ export default function PdfUploadBox({
         handleFileUpload(e.dataTransfer.files);
     };
 
+    const handleConvertAll = () => {
+        pdfs.forEach((file) => {
+            onConvert?.(file);
+        });
+        handleRemoveAll();
+    };
+
+
     const handleConvert = (fileIndex: number) => {
         const fileToConvert = pdfs[fileIndex];
         onConvert?.(fileToConvert);
         handleFileRemove(fileIndex);
     };
+
+    const handleRemoveAll = () => {
+        onUpdateFiles([]);
+    }
 
     const handleFileRemove = (fileIndex: number) => {
         const updatedFiles = pdfs.filter((_, index) => index !== fileIndex);
@@ -59,7 +71,30 @@ export default function PdfUploadBox({
 
     return (
         <div className="space-y-4">
-            <h2 className="text-xl font-semibold">Backflow PDFs</h2>
+            <div className="flex justify-between items-center">
+                <h2 className="text-xl font-semibold">Backflow PDFs</h2>
+                {onConvert && pdfs.length > 0 && (
+                    <div className="flex gap-2">
+                        <button
+                            type="button"
+                            className="btn btn-warning btn-sm"
+                            onClick={handleConvertAll}
+                        >
+                            <RefreshCcw className="w-4 h-4 mr-2"/>
+                            Convert All
+                        </button>
+                        <button
+                            type="button"
+                            className="btn btn-error btn-sm"
+                            onClick={handleRemoveAll}
+                        >
+                            <Trash2 className="w-4 h-4 mr-2"/>
+                            Delete All
+                        </button>
+                    </div>
+                )}
+            </div>
+
             <div
                 className={`border-2 rounded-lg p-8 text-center space-y-4 ${
                     isDragging ? "border-blue-500" : "border-dashed"
