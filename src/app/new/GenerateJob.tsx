@@ -1,7 +1,6 @@
 import {v4 as uuid} from 'uuid';
-import {extractBackflowInfo} from "@/components/util/pdfExtractor";
 import {FacilityOwnerInfo, RepresentativeInfo} from "@/components/types/customer";
-import {JobData} from "@/components/types/job";
+import {BackflowList, JobData} from "@/components/types/job";
 import {FORMAT_VERSION} from "@/components/types/common";
 
 export const handleGenerateJob = async (
@@ -10,7 +9,7 @@ export const handleGenerateJob = async (
     waterPurveyor: string,
     facilityOwnerInfo: FacilityOwnerInfo,
     representativeInfo: RepresentativeInfo,
-    pdfs: File[]
+    backflowList: BackflowList
 ) => {
     const jobData: JobData = {
         metadata: {
@@ -28,7 +27,7 @@ export const handleGenerateJob = async (
             facilityOwnerInfo,
             representativeInfo,
         },
-        backflowList: pdfs?.length ? await extractBackflowInfo(pdfs, jobType) : {},
+        backflowList: backflowList,
     };
 
     const jsonData = JSON.stringify(jobData, null, 2);

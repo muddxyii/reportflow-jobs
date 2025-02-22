@@ -7,6 +7,9 @@ import PdfPopulateButton from '@/app/new/PdfPopulateButton';
 import {handleGenerateJob} from "@/app/new/GenerateJob";
 import {FacilityOwnerInfo, RepresentativeInfo} from "@/components/types/customer";
 import PdfUploadBox from "@/components/pdf-upload-box";
+import {BackflowList} from "@/components/types/job";
+import BackflowBox from "@/app/new/BackflowBox";
+import {extractBackflowInfo} from "@/components/util/pdfExtractor";
 
 
 export default function NewRFJob() {
@@ -25,6 +28,7 @@ export default function NewRFJob() {
     });
 
     const [pdfs, setPdfs] = useState<File[]>([]);
+    const [backflowList, setBackflowList] = useState<BackflowList>({})
     const [jobName, setJobName] = useState<string>('');
     const [jobType, setJobType] = useState<string>('New Test');
     const [waterPurveyor, setWaterPurveyor] = useState<string>('');
@@ -38,17 +42,25 @@ export default function NewRFJob() {
 
     const handlePdfConvert = async (pdf: File) => {
         console.log('Converting PDF: ', pdf.name);
-    }
+        const newBackflowList = await extractBackflowInfo(pdf, jobType);
+        setBackflowList(prev => ({...prev, ...newBackflowList}));
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        // Convert any remaining pdfs
+        const newBackflowList = await extractBackflowInfo(pdfs, jobType);
+        setPdfs([])
+        setBackflowList(prev => ({...prev, ...newBackflowList}));
+
         await handleGenerateJob(
             jobName,
             jobType,
             waterPurveyor,
             facilityOwnerInfo,
             representativeInfo,
-            pdfs,
+            backflowList,
         )
     }
 
@@ -107,6 +119,10 @@ export default function NewRFJob() {
                                 onFacilityOwnerChange={handleInfoChange(setFacilityOwnerInfo)}
                                 onRepresentativeChange={handleInfoChange(setRepresentativeInfo)}
                             />
+
+                            <BackflowBox
+                                backflowList={backflowList}
+                                onUpdateBackflows={setBackflowList}/>
 
                             <PdfUploadBox pdfs={pdfs} onUpdateFiles={setPdfs} onConvert={handlePdfConvert}/>
 
