@@ -47,7 +47,6 @@ export default function PdfUploadBox({
     };
 
     const handleConvert = (fileIndex: number) => {
-        // TODO: use callback from main and give the File, then remove that file from our list
         const fileToConvert = pdfs[fileIndex];
         onConvert?.(fileToConvert);
         handleFileRemove(fileIndex);
