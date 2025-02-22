@@ -36,6 +36,10 @@ export default function NewRFJob() {
         setter((prev) => ({...prev, [name]: value}));
     };
 
+    const handlePdfConvert = async (pdf: File) => {
+        console.log('Converting PDF: ', pdf.name);
+    }
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         await handleGenerateJob(
@@ -104,7 +108,7 @@ export default function NewRFJob() {
                                 onRepresentativeChange={handleInfoChange(setRepresentativeInfo)}
                             />
 
-                            <PdfUploadBox pdfs={pdfs} onUpdateFiles={setPdfs}/>
+                            <PdfUploadBox pdfs={pdfs} onUpdateFiles={setPdfs} onConvert={handlePdfConvert}/>
 
                             <div className="card-actions justify-end">
                                 <button type="submit" className="btn btn-primary">
