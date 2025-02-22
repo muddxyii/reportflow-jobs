@@ -120,11 +120,11 @@ export default function NewRFJob() {
                                 onRepresentativeChange={handleInfoChange(setRepresentativeInfo)}
                             />
 
+                            <PdfUploadBox pdfs={pdfs} onUpdateFiles={setPdfs} onConvert={handlePdfConvert}/>
+
                             <BackflowBox
                                 backflowList={backflowList}
                                 onUpdateBackflows={setBackflowList}/>
-
-                            <PdfUploadBox pdfs={pdfs} onUpdateFiles={setPdfs} onConvert={handlePdfConvert}/>
 
                             <div className="card-actions justify-end">
                                 <button type="submit" className="btn btn-primary">
