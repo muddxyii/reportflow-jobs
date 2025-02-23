@@ -1,5 +1,6 @@
-import {BackflowList} from "@/components/types/job";
+import {Backflow, BackflowList} from "@/components/types/job";
 import {Pencil, Trash2} from "lucide-react";
+import {useState} from "react";
 
 export default function BackflowBox({
                                         backflowList,
@@ -8,10 +9,37 @@ export default function BackflowBox({
     backflowList: BackflowList;
     onUpdateBackflows: (updatedBackflows: BackflowList) => void;
 }) {
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [editingId, setEditingId] = useState<string>("");
+    const [editingBackflow, setEditingBackflow] = useState<Backflow>(Backflow.empty);
+    const [error, setError] = useState<string>("");
 
     const handleBackflowEdit = (id: string) => {
-        // TODO: Impl backflow editing logic
-    }
+        setEditingId(id);
+        setEditingBackflow(backflowList[id]);
+        setIsEditModalOpen(true);
+        setError("");
+    };
+
+    const handleUpdate = () => {
+        if (!editingBackflow.deviceInfo.serialNo.trim()) {
+            setError("Serial number cannot be empty");
+            return;
+        }
+
+        const updatedBackflows = {...backflowList};
+        updatedBackflows[editingId] = editingBackflow;
+        onUpdateBackflows(updatedBackflows);
+        setIsEditModalOpen(false);
+        setError("");
+    };
+
+    const handleCancel = () => {
+        setIsEditModalOpen(false);
+        setEditingBackflow(Backflow.empty);
+        setEditingId("");
+        setError("");
+    };
 
     const handleBackflowRemove = (id: string) => {
         const updatedBackflows = {...backflowList};
@@ -52,6 +80,59 @@ export default function BackflowBox({
                     </ul>
                 )}
             </div>
+
+            {/* Edit Modal */}
+            {isEditModalOpen && editingBackflow && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                    <div className="bg-white p-6 rounded-lg w-96">
+                        <h3 className="text-lg font-semibold mb-4">Edit Backflow</h3>
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">
+                                    Serial Number
+                                </label>
+                                <input
+                                    type="text"
+                                    value={editingBackflow.deviceInfo.serialNo}
+                                    onChange={(e) => {
+                                        setError("");
+                                        setEditingBackflow({
+                                            ...editingBackflow,
+                                            deviceInfo: {
+                                                ...editingBackflow.deviceInfo,
+                                                serialNo: e.target.value
+                                            }
+                                        });
+                                    }}
+                                    className={`mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 
+                                ${error ? 'border-red-500' : 'border-gray-300'}`}
+                                />
+                                {error && (
+                                    <p className="mt-1 text-sm text-red-600">
+                                        {error}
+                                    </p>
+                                )}
+                            </div>
+                            <div className="flex justify-end space-x-2">
+                                <button
+                                    type="button"
+                                    className="btn btn-ghost"
+                                    onClick={handleCancel}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="button"
+                                    className="btn btn-primary"
+                                    onClick={handleUpdate}
+                                >
+                                    Update
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
