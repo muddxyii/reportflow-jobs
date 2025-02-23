@@ -86,50 +86,47 @@ export default function BackflowBox({
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
                     <div className="bg-white p-6 rounded-lg w-96">
                         <h3 className="text-lg font-semibold mb-4">Edit Backflow</h3>
-                        <div className="space-y-4">
+                        <form onSubmit={(e) => {
+                            e.preventDefault();
+                            handleUpdate();
+                        }} className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700">
+                                <label htmlFor="serialNo" className="block text-sm font-medium text-gray-700">
                                     Serial Number
                                 </label>
                                 <input
+                                    id="serialNo"
                                     type="text"
                                     value={editingBackflow.deviceInfo.serialNo}
-                                    onChange={(e) => {
-                                        setError("");
-                                        setEditingBackflow({
-                                            ...editingBackflow,
-                                            deviceInfo: {
-                                                ...editingBackflow.deviceInfo,
-                                                serialNo: e.target.value
-                                            }
-                                        });
-                                    }}
-                                    className={`mt-1 block w-full rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 
-                                ${error ? 'border-red-500' : 'border-gray-300'}`}
+                                    onChange={(e) => setEditingBackflow({
+                                        ...editingBackflow,
+                                        deviceInfo: {
+                                            ...editingBackflow.deviceInfo,
+                                            serialNo: e.target.value
+                                        }
+                                    })}
+                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                    required
                                 />
-                                {error && (
-                                    <p className="mt-1 text-sm text-red-600">
-                                        {error}
-                                    </p>
-                                )}
+                                {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
                             </div>
-                            <div className="flex justify-end space-x-2">
+
+                            <div className="flex justify-end gap-2 mt-4">
                                 <button
                                     type="button"
-                                    className="btn btn-ghost"
                                     onClick={handleCancel}
+                                    className="btn btn-ghost"
                                 >
                                     Cancel
                                 </button>
                                 <button
-                                    type="button"
+                                    type="submit"
                                     className="btn btn-primary"
-                                    onClick={handleUpdate}
                                 >
-                                    Update
+                                    Save Changes
                                 </button>
                             </div>
-                        </div>
+                        </form>
                     </div>
                 </div>
             )}

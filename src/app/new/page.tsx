@@ -80,7 +80,7 @@ export default function NewRFJob() {
                             </div>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="space-y-4">
+                        <form id="jobForm" onSubmit={handleSubmit} className="space-y-4">
                             <div className="form-control w-full mb-2">
                                 <label className="label">
                                     <span className="text-xl font-semibold">Job Name</span>
@@ -120,18 +120,19 @@ export default function NewRFJob() {
                                 onRepresentativeChange={handleInfoChange(setRepresentativeInfo)}
                             />
 
-                            <PdfUploadBox pdfs={pdfs} onUpdateFiles={setPdfs} onConvert={handlePdfConvert}/>
-
-                            <BackflowBox
-                                backflowList={backflowList}
-                                onUpdateBackflows={setBackflowList}/>
-
-                            <div className="card-actions justify-end">
-                                <button type="submit" className="btn btn-primary">
-                                    Generate ReportFlow Job
-                                </button>
-                            </div>
                         </form>
+
+                        <PdfUploadBox pdfs={pdfs} onUpdateFiles={setPdfs} onConvert={handlePdfConvert}/>
+
+                        <BackflowBox
+                            backflowList={backflowList}
+                            onUpdateBackflows={setBackflowList}/>
+
+                        <div className="card-actions justify-end">
+                            <button type="submit" form="jobForm" className="btn btn-primary">
+                                Generate ReportFlow Job
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
