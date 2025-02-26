@@ -49,10 +49,9 @@ export default function NewRFJob() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Convert any remaining pdfs
         const newBackflowList = await extractBackflowInfo(pdfs, jobType);
-        setPdfs([])
-        setBackflowList(prev => ({...prev, ...newBackflowList}));
+        const mergedBackflowList = {...backflowList, ...newBackflowList};
+
 
         await handleGenerateJob(
             jobName,
@@ -60,7 +59,7 @@ export default function NewRFJob() {
             waterPurveyor,
             facilityOwnerInfo,
             representativeInfo,
-            backflowList,
+            mergedBackflowList,
         )
     }
 

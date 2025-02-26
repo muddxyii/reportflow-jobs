@@ -1,5 +1,5 @@
 import {CustomerInformation} from "@/components/types/customer";
-import {DeviceInfo, InstallationInfo, LocationInfo} from "@/components/types/backflow-device";
+import {Coordinates, DeviceInfo, InstallationInfo, LocationInfo} from "@/components/types/backflow-device";
 import {Test} from "@/components/types/testing";
 import {Repairs} from "@/components/types/repairs";
 import {PDFFieldExtractor} from "@/components/util/pdfFieldExtractor";
@@ -94,7 +94,8 @@ const extractLocationInfoFromFields = (fields: {
 }): LocationInfo => ({
     assemblyAddress: fields.text['AssemblyAddress'] || '',
     onSiteLocation: fields.text['On Site Location of Assembly'] || '',
-    primaryService: fields.text['PrimaryBusinessService'] || ''
+    primaryService: fields.text['PrimaryBusinessService'] || '',
+    coordinates: Coordinates.empty(),
 });
 
 const extractInstallationInfoFromFields = (fields: {
