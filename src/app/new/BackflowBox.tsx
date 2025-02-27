@@ -1,5 +1,5 @@
 import {Backflow, BackflowList} from "@/components/types/job";
-import {Pencil, Trash2} from "lucide-react";
+import {ClipboardPaste, Pencil, Trash2} from "lucide-react";
 import React, {useState} from "react";
 
 export default function BackflowBox({
@@ -59,6 +59,47 @@ export default function BackflowBox({
             latitude: lat == 0 ? '' : lat.toString(),
             longitude: lng == 0 ? '' : lng.toString(),
         });
+    };
+
+    const handlePasteCoordinates = async () => {
+        setError("");
+        try {
+            const clipText = await navigator.clipboard.readText();
+            const coords = parseCoordinates(clipText);
+
+            if (coords) {
+                setCoordinates(coords);
+                setCoordinateErrors({latitude: '', longitude: ''});
+            } else {
+                setError("Invalid Coordinates format: " + clipText);
+            }
+        } catch (err) {
+            setError("Failed to read clipboard: " + err);
+        }
+    };
+
+    const parseCoordinates = (input: string): { latitude: string; longitude: string } | null => {
+        const trimmed = input.trim();
+        const parts = trimmed.split(',');
+
+        if (parts.length !== 2) {
+            return null;
+        }
+
+        const latStr = parts[0].trim();
+        const lngStr = parts[1].trim();
+
+        const lat = parseLatitude(latStr);
+        const lng = parseLongitude(lngStr);
+
+        if (lat == 0 || lng == 0) {
+            return null;
+        }
+
+        return {
+            latitude: lat.toString(),
+            longitude: lng.toString()
+        };
     };
 
     const validateCoordinates = (): boolean => {
@@ -200,7 +241,18 @@ export default function BackflowBox({
             {isEditModalOpen && (
                 <div className="modal modal-open">
                     <div className="modal-box">
-                        <h3 className="font-bold text-lg">Edit Backflow Coordinates</h3>
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="font-bold text-lg">Edit Backflow Coordinates</h3>
+                            <button
+                                onClick={handlePasteCoordinates}
+                                className="btn btn-sm btn-ghost gap-2"
+                                title="Paste Coordinates"
+                            >
+                                <ClipboardPaste className="h-4 w-4"/>
+                                Paste Coordinates
+                            </button>
+                        </div>
+
                         <div className="form-control w-full">
                             <label className="label">
                                 <span className="label-text">Latitude</span>
