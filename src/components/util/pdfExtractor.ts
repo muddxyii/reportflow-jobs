@@ -1,5 +1,5 @@
 import {CustomerInformation} from "@/components/types/customer";
-import {DeviceInfo, InstallationInfo, LocationInfo} from "@/components/types/backflow-device";
+import {Coordinates, DeviceInfo, InstallationInfo, LocationInfo} from "@/components/types/backflow-device";
 import {Test} from "@/components/types/testing";
 import {Repairs} from "@/components/types/repairs";
 import {PDFFieldExtractor} from "@/components/util/pdfFieldExtractor";
@@ -49,7 +49,7 @@ export const extractWaterPurveyor = async (pdf: File) => {
     return waterPurveyor;
 };
 
-export const extractBackflowInfo = async (pdfs: File[], jobType: string) => {
+export const extractBackflowInfo = async (pdfs: File | File[], jobType: string) => {
     const backflowList: Record<string, {
         locationInfo: LocationInfo;
         installationInfo: InstallationInfo;
@@ -59,7 +59,9 @@ export const extractBackflowInfo = async (pdfs: File[], jobType: string) => {
         finalTest: Test;
     }> = {};
 
-    for (const pdf of pdfs) {
+    const pdfArray = Array.isArray(pdfs) ? pdfs : [pdfs];
+
+    for (const pdf of pdfArray) {
         try {
             const extractor = new PDFFieldExtractor();
             const fields = await extractor.extractFields(pdf, {
@@ -92,7 +94,8 @@ const extractLocationInfoFromFields = (fields: {
 }): LocationInfo => ({
     assemblyAddress: fields.text['AssemblyAddress'] || '',
     onSiteLocation: fields.text['On Site Location of Assembly'] || '',
-    primaryService: fields.text['PrimaryBusinessService'] || ''
+    primaryService: fields.text['PrimaryBusinessService'] || '',
+    coordinates: Coordinates.empty(),
 });
 
 const extractInstallationInfoFromFields = (fields: {

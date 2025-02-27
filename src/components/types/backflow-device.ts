@@ -1,12 +1,25 @@
+interface Coordinates {
+    latitude: number;
+    longitude: number;
+}
+
+export const Coordinates = {
+    empty(): Coordinates {
+        return {latitude: 0, longitude: 0};
+    }
+}
+
+
 export interface LocationInfo {
     assemblyAddress: string;
     onSiteLocation: string;
     primaryService: string;
+    coordinates: Coordinates;
 }
 
 export const LocationInfo = {
     empty(): LocationInfo {
-        return {assemblyAddress: '', onSiteLocation: '', primaryService: ''};
+        return {assemblyAddress: '', onSiteLocation: '', primaryService: '', coordinates: Coordinates.empty()};
     },
     textFields(): string[] {
         return ['AssemblyAddress', 'On Site Location of Assembly', 'PrimaryBusinessService'];

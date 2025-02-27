@@ -7,6 +7,9 @@ import PdfPopulateButton from '@/app/new/PdfPopulateButton';
 import {handleGenerateJob} from "@/app/new/GenerateJob";
 import {FacilityOwnerInfo, RepresentativeInfo} from "@/components/types/customer";
 import PdfUploadBox from "@/components/pdf-upload-box";
+import {BackflowList} from "@/components/types/job";
+import BackflowBox from "@/app/new/BackflowBox";
+import {extractBackflowInfo} from "@/components/util/pdfExtractor";
 
 
 export default function NewRFJob() {
@@ -25,6 +28,7 @@ export default function NewRFJob() {
     });
 
     const [pdfs, setPdfs] = useState<File[]>([]);
+    const [backflowList, setBackflowList] = useState<BackflowList>({})
     const [jobName, setJobName] = useState<string>('');
     const [jobType, setJobType] = useState<string>('New Test');
     const [waterPurveyor, setWaterPurveyor] = useState<string>('');
@@ -36,15 +40,26 @@ export default function NewRFJob() {
         setter((prev) => ({...prev, [name]: value}));
     };
 
+    const handlePdfConvert = async (pdf: File) => {
+        console.log('Converting PDF: ', pdf.name);
+        const newBackflowList = await extractBackflowInfo(pdf, jobType);
+        setBackflowList(prev => ({...prev, ...newBackflowList}));
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        const newBackflowList = await extractBackflowInfo(pdfs, jobType);
+        const mergedBackflowList = {...backflowList, ...newBackflowList};
+
+
         await handleGenerateJob(
             jobName,
             jobType,
             waterPurveyor,
             facilityOwnerInfo,
             representativeInfo,
-            pdfs,
+            mergedBackflowList,
         )
     }
 
@@ -64,7 +79,7 @@ export default function NewRFJob() {
                             </div>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="space-y-4">
+                        <form id="jobForm" onSubmit={handleSubmit} className="space-y-4">
                             <div className="form-control w-full mb-2">
                                 <label className="label">
                                     <span className="text-xl font-semibold">Job Name</span>
@@ -104,14 +119,19 @@ export default function NewRFJob() {
                                 onRepresentativeChange={handleInfoChange(setRepresentativeInfo)}
                             />
 
-                            <PdfUploadBox pdfs={pdfs} onUpdateFiles={setPdfs}/>
-
-                            <div className="card-actions justify-end">
-                                <button type="submit" className="btn btn-primary">
-                                    Generate ReportFlow Job
-                                </button>
-                            </div>
                         </form>
+
+                        <PdfUploadBox pdfs={pdfs} onUpdateFiles={setPdfs} onConvert={handlePdfConvert}/>
+
+                        <BackflowBox
+                            backflowList={backflowList}
+                            onUpdateBackflows={setBackflowList}/>
+
+                        <div className="card-actions justify-end">
+                            <button type="submit" form="jobForm" className="btn btn-primary">
+                                Generate ReportFlow Job
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -1,12 +1,14 @@
-import {Trash2, Upload} from "lucide-react";
+import {RefreshCcw, Trash2, Upload} from "lucide-react";
 import React, {useState} from "react";
 
 export default function PdfUploadBox({
                                          pdfs,
                                          onUpdateFiles,
+                                         onConvert,
                                      }: {
     pdfs: File[];
     onUpdateFiles: (updatedFiles: File[]) => void;
+    onConvert?: (file: File) => void;
 }) {
     const [isDragging, setIsDragging] = useState(false);
     const [duplicateFileError, setDuplicateFileError] = useState<string | null>(null);
@@ -44,6 +46,24 @@ export default function PdfUploadBox({
         handleFileUpload(e.dataTransfer.files);
     };
 
+    const handleConvertAll = () => {
+        pdfs.forEach((file) => {
+            onConvert?.(file);
+        });
+        handleRemoveAll();
+    };
+
+
+    const handleConvert = (fileIndex: number) => {
+        const fileToConvert = pdfs[fileIndex];
+        onConvert?.(fileToConvert);
+        handleFileRemove(fileIndex);
+    };
+
+    const handleRemoveAll = () => {
+        onUpdateFiles([]);
+    }
+
     const handleFileRemove = (fileIndex: number) => {
         const updatedFiles = pdfs.filter((_, index) => index !== fileIndex);
         onUpdateFiles(updatedFiles);
@@ -51,7 +71,30 @@ export default function PdfUploadBox({
 
     return (
         <div className="space-y-4">
-            <h2 className="text-xl font-semibold">Backflow Devices</h2>
+            <div className="flex justify-between items-center">
+                <h2 className="text-xl font-semibold">Backflow PDFs</h2>
+                {onConvert && pdfs.length > 0 && (
+                    <div className="flex gap-2">
+                        <button
+                            type="button"
+                            className="btn btn-warning btn-sm"
+                            onClick={handleConvertAll}
+                        >
+                            <RefreshCcw className="w-4 h-4 mr-2"/>
+                            Convert All
+                        </button>
+                        <button
+                            type="button"
+                            className="btn btn-error btn-sm"
+                            onClick={handleRemoveAll}
+                        >
+                            <Trash2 className="w-4 h-4 mr-2"/>
+                            Delete All
+                        </button>
+                    </div>
+                )}
+            </div>
+
             <div
                 className={`border-2 rounded-lg p-8 text-center space-y-4 ${
                     isDragging ? "border-blue-500" : "border-dashed"
@@ -82,28 +125,29 @@ export default function PdfUploadBox({
                         {duplicateFileError}
                     </p>
                 )}
-                {pdfs.length > 0 && (
-                    <div className="text-left">
-                        <h3 className="font-semibold mb-2">Uploaded Files:</h3>
-                        <ul className="list-disc list-inside space-y-2">
-                            {pdfs.map((file, index) => (
-                                <li
-                                    key={index}
-                                    className="flex justify-between items-center"
+                {pdfs.map((file, index) => (
+                    <li key={index} className="flex justify-between items-center">
+                        <span>{file.name}</span>
+                        <div className="flex gap-2">
+                            {onConvert && (
+                                <button
+                                    type="button"
+                                    className="btn btn-warning btn-sm"
+                                    onClick={() => handleConvert(index)}
                                 >
-                                    <span>{file.name}</span>
-                                    <button
-                                        type="button"
-                                        className="btn btn-error btn-sm"
-                                        onClick={() => handleFileRemove(index)}
-                                    >
-                                        <Trash2 className="w-4 h-4"/>
-                                    </button>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                )}
+                                    <RefreshCcw className="h-4 w-4"/>
+                                </button>
+                            )}
+                            <button
+                                type="button"
+                                className="btn btn-error btn-sm"
+                                onClick={() => handleFileRemove(index)}
+                            >
+                                <Trash2 className="h-4 w-4"/>
+                            </button>
+                        </div>
+                    </li>
+                ))}
             </div>
         </div>
     );
