@@ -1,6 +1,6 @@
 import {Backflow, BackflowList} from "@/components/types/job";
 import {Pencil, Trash2} from "lucide-react";
-import {useState} from "react";
+import React, {useState} from "react";
 
 export default function BackflowBox({
                                         backflowList,
@@ -13,25 +13,138 @@ export default function BackflowBox({
     const [editingId, setEditingId] = useState<string>("");
     const [editingBackflow, setEditingBackflow] = useState<Backflow>(Backflow.empty);
     const [error, setError] = useState<string>("");
+    const [coordinates, setCoordinates] = useState({
+        latitude: '',
+        longitude: ''
+    });
+    const [coordinateErrors, setCoordinateErrors] = useState({
+        latitude: '',
+        longitude: ''
+    });
+
+    const handleCoordinateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const {name, value} = e.target;
+
+        // Clear previous errors
+        setCoordinateErrors(prev => ({
+            ...prev,
+            [name]: ''
+        }));
+
+        // Only allow numbers, decimal point, and minus sign
+        if (!/^-?\d*\.?\d*$/.test(value) && value !== '') {
+            setCoordinateErrors(prev => ({
+                ...prev,
+                [name]: 'Please enter a valid number'
+            }));
+            return;
+        }
+
+        setCoordinates(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
 
     const handleBackflowEdit = (id: string) => {
         setEditingId(id);
         setEditingBackflow(backflowList[id]);
         setIsEditModalOpen(true);
         setError("");
+        setCoordinateErrors({latitude: '', longitude: ''});
+
+        const lat = backflowList[id].locationInfo.coordinates.latitude;
+        const lng = backflowList[id].locationInfo.coordinates.longitude;
+        setCoordinates({
+            latitude: lat == 0 ? '' : lat.toString(),
+            longitude: lng == 0 ? '' : lng.toString(),
+        });
+    };
+
+    const validateCoordinates = (): boolean => {
+        let isValid = true;
+        const errors = {
+            latitude: '',
+            longitude: ''
+        };
+
+        if (!coordinates.latitude) {
+            errors.latitude = 'Latitude is required';
+            isValid = false;
+        }
+
+        if (!coordinates.longitude) {
+            errors.longitude = 'Longitude is required';
+            isValid = false;
+        }
+
+        setCoordinateErrors(errors);
+        return isValid;
+    };
+
+    const parseLatitude = (value: string): number => {
+        if (!value) return 0;
+        const parsed = parseFloat(value);
+        if (isNaN(parsed)) {
+            setCoordinateErrors(prev => ({
+                ...prev,
+                latitude: 'Invalid latitude value'
+            }));
+            return 0;
+        }
+        const constrained = Math.max(-90, Math.min(90, parsed));
+        if (constrained !== parsed) {
+            setCoordinateErrors(prev => ({
+                ...prev,
+                latitude: 'Latitude must be between -90 and 90 degrees'
+            }));
+        }
+        return constrained;
+    };
+
+    const parseLongitude = (value: string): number => {
+        if (!value) return 0;
+        const parsed = parseFloat(value);
+        if (isNaN(parsed)) {
+            setCoordinateErrors(prev => ({
+                ...prev,
+                longitude: 'Invalid longitude value'
+            }));
+            return 0;
+        }
+        const constrained = Math.max(-180, Math.min(180, parsed));
+        if (constrained !== parsed) {
+            setCoordinateErrors(prev => ({
+                ...prev,
+                longitude: 'Longitude must be between -180 and 180 degrees'
+            }));
+        }
+        return constrained;
     };
 
     const handleUpdate = () => {
-        if (!editingBackflow.deviceInfo.serialNo.trim()) {
-            setError("Serial number cannot be empty");
+        if (!validateCoordinates()) {
+            setError("Please correct the coordinate errors before saving");
             return;
         }
+
+        const parsedLat = parseLatitude(coordinates.latitude);
+        const parsedLng = parseLongitude(coordinates.longitude);
+
+        if (coordinateErrors.latitude || coordinateErrors.longitude) {
+            setError("Please correct the coordinate errors before saving");
+            return;
+        }
+
+        editingBackflow.locationInfo.coordinates.latitude = parsedLat;
+        editingBackflow.locationInfo.coordinates.longitude = parsedLng;
 
         const updatedBackflows = {...backflowList};
         updatedBackflows[editingId] = editingBackflow;
         onUpdateBackflows(updatedBackflows);
         setIsEditModalOpen(false);
         setError("");
+        setCoordinateErrors({latitude: '', longitude: ''});
     };
 
     const handleCancel = () => {
@@ -39,6 +152,7 @@ export default function BackflowBox({
         setEditingBackflow(Backflow.empty);
         setEditingId("");
         setError("");
+        setCoordinateErrors({latitude: '', longitude: ''});
     };
 
     const handleBackflowRemove = (id: string) => {
@@ -52,8 +166,9 @@ export default function BackflowBox({
             <h2 className="text-xl font-semibold">Backflows</h2>
             <div className="border-2 rounded-lg p-4">
                 {Object.keys(backflowList).length === 0 ? (
-                    <p className="text-center text-gray-500">No backflows available.<br/>Convert some PDFs to get
-                        started.</p>
+                    <p className="text-center text-gray-500">
+                        No backflows available.<br/>Convert some PDFs to get started.
+                    </p>
                 ) : (
                     <ul className="space-y-2">
                         {Object.entries(backflowList).map(([id, backflow]) => (
@@ -82,51 +197,66 @@ export default function BackflowBox({
             </div>
 
             {/* Edit Modal */}
-            {isEditModalOpen && editingBackflow && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                    <div className="bg-white p-6 rounded-lg w-96">
-                        <h3 className="text-lg font-semibold mb-4">Edit Backflow</h3>
-                        <form onSubmit={(e) => {
-                            e.preventDefault();
-                            handleUpdate();
-                        }} className="space-y-4">
-                            <div>
-                                <label htmlFor="serialNo" className="block text-sm font-medium text-gray-700">
-                                    Serial Number
+            {isEditModalOpen && (
+                <div className="modal modal-open">
+                    <div className="modal-box">
+                        <h3 className="font-bold text-lg">Edit Backflow Coordinates</h3>
+                        <div className="form-control w-full">
+                            <label className="label">
+                                <span className="label-text">Latitude</span>
+                            </label>
+                            <input
+                                type="text"
+                                name="latitude"
+                                value={coordinates.latitude}
+                                onChange={handleCoordinateChange}
+                                className={`input input-bordered w-full ${
+                                    coordinateErrors.latitude ? 'input-error' : ''
+                                }`}
+                                placeholder="Enter latitude (-90 to 90)"
+                            />
+                            {coordinateErrors.latitude && (
+                                <label className="label">
+                                    <span className="label-text-alt text-error">{coordinateErrors.latitude}</span>
                                 </label>
-                                <input
-                                    id="serialNo"
-                                    type="text"
-                                    value={editingBackflow.deviceInfo.serialNo}
-                                    onChange={(e) => setEditingBackflow({
-                                        ...editingBackflow,
-                                        deviceInfo: {
-                                            ...editingBackflow.deviceInfo,
-                                            serialNo: e.target.value
-                                        }
-                                    })}
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                    required
-                                />
-                                {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
-                            </div>
+                            )}
+                        </div>
 
-                            <div className="flex justify-end gap-2 mt-4">
-                                <button
-                                    type="button"
-                                    onClick={handleCancel}
-                                    className="btn btn-ghost"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="submit"
-                                    className="btn btn-primary"
-                                >
-                                    Save Changes
-                                </button>
+                        <div className="form-control w-full">
+                            <label className="label">
+                                <span className="label-text">Longitude</span>
+                            </label>
+                            <input
+                                type="text"
+                                name="longitude"
+                                value={coordinates.longitude}
+                                onChange={handleCoordinateChange}
+                                className={`input input-bordered w-full ${
+                                    coordinateErrors.longitude ? 'input-error' : ''
+                                }`}
+                                placeholder="Enter longitude (-180 to 180)"
+                            />
+                            {coordinateErrors.longitude && (
+                                <label className="label">
+                                    <span className="label-text-alt text-error">{coordinateErrors.longitude}</span>
+                                </label>
+                            )}
+                        </div>
+
+                        {error && (
+                            <div className="alert alert-error mt-4">
+                                <span>{error}</span>
                             </div>
-                        </form>
+                        )}
+
+                        <div className="modal-action">
+                            <button className="btn btn-primary" onClick={handleUpdate}>
+                                Save Changes
+                            </button>
+                            <button className="btn" onClick={handleCancel}>
+                                Cancel
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
