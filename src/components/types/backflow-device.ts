@@ -22,7 +22,7 @@ export const LocationInfo = {
         return {assemblyAddress: '', onSiteLocation: '', primaryService: '', coordinates: Coordinates.empty()};
     },
     textFields(): string[] {
-        return ['AssemblyAddress', 'On Site Location of Assembly', 'PrimaryBusinessService'];
+        return ['AssemblyAddress', 'On Site Location of Assembly', 'PrimaryBusinessService', 'Latitude', 'Longitude'];
     }
 }
 
