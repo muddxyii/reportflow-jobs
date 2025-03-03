@@ -139,27 +139,27 @@ const extractInitialTestFromFields = (fields: {
     linePressure: fields.text['LinePressure'] || '',
     checkValve1: {
         value: fields.text['InitialCT1'] || '',
-        closedTight: fields.checkbox['InitialCTBox'],
+        closedTight: Boolean(fields.checkbox['InitialCTBox']),
     },
     checkValve2: {
         value: fields.text['InitialCT2'] || '',
-        closedTight: fields.checkbox['InitialCT2Box'],
+        closedTight: Boolean(fields.checkbox['InitialCT2Box']),
     },
     reliefValve: {
         value: fields.text['InitialPSIRV'] || '',
-        opened: !fields.checkbox['InitialRVDidNotOpen'],
-        leaking: false,
+        opened: !Boolean(fields.checkbox['InitialRVDidNotOpen']),
+        leaking: Boolean(false),
     },
     vacuumBreaker: {
-        backPressure: fields.dropdown['BackPressure'] === 'YES',
+        backPressure: Boolean(fields.dropdown['BackPressure'] === 'YES'),
         airInlet: {
             value: fields.text['InitialAirInlet'] || '',
-            leaked: fields.checkbox['InitialAirInletLeaked'],
-            opened: fields.checkbox['InitialCkPVBLDidNotOpen'],
+            leaked: Boolean(fields.checkbox['InitialAirInletLeaked']),
+            opened: Boolean(fields.checkbox['InitialCkPVBLDidNotOpen']),
         },
         check: {
             value: fields.text['InitialCk1PVB'] || '',
-            leaked: fields.checkbox['InitialCkPVBLeaked'],
+            leaked: Boolean(fields.checkbox['InitialCkPVBLeaked']),
         },
     },
     testerProfile: {
