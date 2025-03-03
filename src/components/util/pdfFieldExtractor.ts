@@ -6,24 +6,43 @@ interface FieldExtractor<T> {
 
 class TextFieldExtractor implements FieldExtractor<string> {
     extract(form: PDFForm, fieldName: string): string {
-        const field = form.getTextField(fieldName);
-        return field?.getText() || '';
+        try {
+            const field = form.getTextField(fieldName);
+            return field?.getText() || '';
+        } catch (error) {
+            // Catch any error when trying to get the field
+            console.warn(`Field "${fieldName}" not found or not accessible: ${error}`);
+            return '';
+        }
     }
 }
+
 
 class DropdownFieldExtractor implements FieldExtractor<string> {
     extract(form: PDFForm, fieldName: string): string {
-        const field = form.getDropdown(fieldName);
-        return field?.getSelected()?.[0] || '';
+        try {
+            const field = form.getDropdown(fieldName);
+            return field?.getSelected()?.[0] || '';
+        } catch (error) {
+            console.warn(`Field "${fieldName}" not found or not accessible: ${error}`);
+            return '';
+        }
     }
 }
 
+
 class CheckboxFieldExtractor implements FieldExtractor<string> {
     extract(form: PDFForm, fieldName: string): string {
-        const field = form.getCheckBox(fieldName);
-        return field?.isChecked() ? 'true' : 'false';
+        try {
+            const field = form.getCheckBox(fieldName);
+            return field?.isChecked() ? 'true' : 'false';
+        } catch (error) {
+            console.warn(`Field "${fieldName}" not found or not accessible: ${error}`);
+            return 'false';
+        }
     }
 }
+
 
 export class PDFFieldExtractor {
     private readonly extractors: {
