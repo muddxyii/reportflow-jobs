@@ -214,7 +214,7 @@ export default function BackflowBox({
                     <ul className="space-y-2">
                         {Object.entries(backflowList).map(([id, backflow]) => (
                             <li key={id} className="flex justify-between items-center">
-                                <span>{backflow.deviceInfo.serialNo}</span>
+                                <span>{backflow.deviceInfo.serialNo == '' ? 'Unknown Serial No.' : backflow.deviceInfo.serialNo}</span>
                                 <div className="flex gap-2">
                                     <button
                                         type="button"
