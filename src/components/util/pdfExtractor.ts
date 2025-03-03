@@ -148,6 +148,7 @@ const extractInitialTestFromFields = (fields: {
     reliefValve: {
         value: fields.text['InitialPSIRV'] || '',
         opened: !fields.checkbox['InitialRVDidNotOpen'],
+        leaking: false,
     },
     vacuumBreaker: {
         backPressure: fields.dropdown['BackPressure'] === 'YES',
