@@ -13,12 +13,14 @@ export const CheckValve = {
 export interface ReliefValve {
     value: string;
     opened: boolean;
+    leaking: boolean;
 }
 
 export const ReliefValve = {
     empty: (): ReliefValve => ({
         value: '',
-        opened: false
+        opened: false,
+        leaking: false,
     })
 };
 
