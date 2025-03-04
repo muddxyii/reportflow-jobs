@@ -1,6 +1,7 @@
 import {Backflow, BackflowList} from "@/components/types/job";
 import {ClipboardPaste, Pencil, Trash2} from "lucide-react";
 import React, {useState} from "react";
+import {MapPreview} from "@/components/map-preview";
 
 export default function BackflowBox({
                                         backflowList,
@@ -252,6 +253,13 @@ export default function BackflowBox({
                                 Paste Coordinates
                             </button>
                         </div>
+
+                        {/* Add this after the longitude input section */}
+                        {coordinates.latitude && coordinates.longitude && !coordinateErrors.latitude && !coordinateErrors.longitude && (
+                            <div className="mt-4">
+                                <MapPreview latitude={coordinates.latitude} longitude={coordinates.longitude}/>
+                            </div>
+                        )}
 
                         <div className="form-control w-full">
                             <label className="label">
