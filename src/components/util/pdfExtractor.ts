@@ -106,7 +106,8 @@ const extractInstallationInfoFromFields = (fields: {
     dropdown: Record<string, string>;
     checkbox: Record<string, boolean>;
 }): InstallationInfo => ({
-    status: fields.dropdown['InstallationIs'] || '',
+    status: fields.dropdown['InstallationIs'] === 'REPLACEMENT' ?
+        'EXISTING' : (fields.dropdown['InstallationIs'] || ''),
     protectionType: fields.dropdown['ProtectionType'] || '',
     serviceType: fields.dropdown['ServiceType'] || ''
 });
