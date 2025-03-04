@@ -1,6 +1,8 @@
 import {Backflow, BackflowList} from "@/components/types/job";
-import {ClipboardPaste, Pencil, Trash2} from "lucide-react";
+import {ClipboardCopy, ClipboardPaste, Pencil, Trash2} from "lucide-react";
 import React, {useState} from "react";
+import {MapPreview} from "@/components/map-preview";
+import OpenLocationCode from "open-location-code-typescript";
 
 export default function BackflowBox({
                                         backflowList,
@@ -9,6 +11,7 @@ export default function BackflowBox({
     backflowList: BackflowList;
     onUpdateBackflows: (updatedBackflows: BackflowList) => void;
 }) {
+    const [showToast, setShowToast] = useState(false);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [editingId, setEditingId] = useState<string>("");
     const [editingBackflow, setEditingBackflow] = useState<Backflow>(Backflow.empty);
@@ -202,6 +205,22 @@ export default function BackflowBox({
         onUpdateBackflows(updatedBackflows);
     };
 
+    const handleCopyCoordinates = async (id: string) => {
+        try {
+            const lat = backflowList[id].locationInfo.coordinates.latitude;
+            const lng = backflowList[id].locationInfo.coordinates.longitude;
+
+            const plusCode = OpenLocationCode.encode(lat, lng);
+            await navigator.clipboard.writeText(plusCode);
+
+            setShowToast(true);
+            setTimeout(() => setShowToast(false), 2000);
+        } catch (err) {
+            console.error("Failed to copy plus code:", err);
+        }
+    };
+
+
     return (
         <div className="space-y-4">
             <h2 className="text-xl font-semibold">Backflows</h2>
@@ -223,6 +242,15 @@ export default function BackflowBox({
                                     >
                                         <Pencil className="h-4 w-4"/>
                                     </button>
+                                    {backflow.locationInfo.coordinates.latitude != 0 && backflow.locationInfo.coordinates.longitude != 0 && (
+                                        <button
+                                            type="button"
+                                            className="btn btn-info btn-sm"
+                                            onClick={() => handleCopyCoordinates(id)}
+                                        >
+                                            <ClipboardCopy className="h-4 w-4"/>
+                                        </button>
+                                    )}
                                     <button
                                         type="button"
                                         className="btn btn-error btn-sm"
@@ -252,6 +280,12 @@ export default function BackflowBox({
                                 Paste Coordinates
                             </button>
                         </div>
+
+                        {coordinates.latitude && coordinates.longitude && !coordinateErrors.latitude && !coordinateErrors.longitude && (
+                            <div className="mt-4">
+                                <MapPreview latitude={coordinates.latitude} longitude={coordinates.longitude}/>
+                            </div>
+                        )}
 
                         <div className="form-control w-full">
                             <label className="label">
@@ -309,6 +343,14 @@ export default function BackflowBox({
                                 Cancel
                             </button>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {showToast && (
+                <div className="toast toast-end">
+                    <div className="alert alert-success">
+                        <span>Plus code copied to clipboard!</span>
                     </div>
                 </div>
             )}

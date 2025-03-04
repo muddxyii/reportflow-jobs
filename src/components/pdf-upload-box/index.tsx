@@ -29,6 +29,14 @@ export default function PdfUploadBox({
         }
         onUpdateFiles([...pdfs, ...newFiles]);
         setDuplicateFileError(null);
+
+        // If onConvert exists automatically convert PDFs
+        if (onConvert) {
+            newFiles.forEach(file => {
+                onConvert(file);
+            });
+            onUpdateFiles([]);
+        }
     };
 
     const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {

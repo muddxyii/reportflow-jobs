@@ -127,6 +127,10 @@ export default function NewRFJob() {
                             backflowList={backflowList}
                             onUpdateBackflows={setBackflowList}/>
 
+                        <div className="text-sm text-base-content opacity-80 mb-2">
+                            {`${pdfs.length} PDFs | ${Object.keys(backflowList).length} Backflows`}
+                        </div>
+
                         <div className="card-actions justify-end">
                             <button type="submit" form="jobForm" className="btn btn-primary">
                                 Generate ReportFlow Job
