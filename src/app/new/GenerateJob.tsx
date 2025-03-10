@@ -49,10 +49,11 @@ const formatJobName = (jobName: string) => {
     const formattedName = jobName.trim().split(' ')
         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
         .join('');
-    const currentDate = new Date().toLocaleDateString('en-US', {
-        month: '2-digit',
-        day: '2-digit',
-        year: 'numeric',
-    }).replace(/\//g, '-');
-    return `${formattedName}_${currentDate}`;
+
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+
+    return `${year}-${month}-${day} ${formattedName}`;
 };
