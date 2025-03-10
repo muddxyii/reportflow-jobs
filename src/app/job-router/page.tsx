@@ -3,6 +3,7 @@
 import React, {useState} from "react";
 import JsonUploadBox from "@/components/json-upload-box";
 import {JobData} from "@/components/types/job";
+import JobBox from "@/app/job-router/JobBox";
 
 export default function JobRouter() {
     const [jsons, setJsons] = useState<File[]>([])
@@ -20,6 +21,9 @@ export default function JobRouter() {
         }
     }
 
+    const handleRemoveJob = (jobToRemove: JobData) => {
+        setJobs(currentJobs => currentJobs.filter(job => job !== jobToRemove));
+    };
 
     return (
         <main className="min-h-screen bg-base-300 p-8">
@@ -40,34 +44,7 @@ export default function JobRouter() {
                             </div>
                         )}
 
-                        {jobs.length > 0 && (
-                            <div className="mt-4">
-                                <h2 className="text-xl font-semibold mb-2">Job List</h2>
-                                <div className="overflow-x-auto">
-                                    <table className="table w-full">
-                                        <thead>
-                                        <tr>
-                                            <th>Job Name</th>
-                                            <th>Type</th>
-                                            <th>Coordinates</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        {jobs.map((job, index) => (
-                                            <tr key={index} className="hover:bg-base-200">
-                                                <td>{job.details.jobName}</td>
-                                                <td>{job.details.jobType}</td>
-                                                <td>
-                                                    {job.backflowList[0]?.locationInfo?.coordinates.longitude ||
-                                                        'No coordinates'}
-                                                </td>
-                                            </tr>
-                                        ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        )}
+                        <JobBox jobList={jobs} onRemoveJob={handleRemoveJob}/>
 
                     </div>
                 </div>
