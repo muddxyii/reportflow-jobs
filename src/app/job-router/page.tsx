@@ -1,6 +1,11 @@
-import React from "react";
+'use client'
+
+import React, {useState} from "react";
+import JsonUploadBox from "@/components/json-upload-box";
 
 export default function JobRouter() {
+    const [jsons, setJsons] = useState<File[]>([])
+
     return (
         <main className="min-h-screen bg-base-300 p-8">
             <div className="max-w-2xl mx-auto">
@@ -11,6 +16,9 @@ export default function JobRouter() {
                                 <h1 className="card-title text-2xl font-bold text-left">Job Router</h1>
                             </div>
                         </div>
+
+                        <JsonUploadBox jsonFiles={jsons} onUpdateFiles={setJsons}/>
+
                         <div className="card-actions justify-end">
                             <button type="submit" className="btn btn-primary">
                                 Optimize Job Route

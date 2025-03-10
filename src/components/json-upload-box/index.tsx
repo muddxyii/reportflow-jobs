@@ -1,12 +1,12 @@
 import {RefreshCcw, Trash2, Upload} from "lucide-react";
 import React, {useState} from "react";
 
-export default function PdfUploadBox({
-                                         pdfs,
-                                         onUpdateFiles,
-                                         onConvert,
-                                     }: {
-    pdfs: File[];
+export default function JsonUploadBox({
+                                          jsonFiles,
+                                          onUpdateFiles,
+                                          onConvert,
+                                      }: {
+    jsonFiles: File[];
     onUpdateFiles: (updatedFiles: File[]) => void;
     onConvert?: (file: File) => void;
 }) {
@@ -16,21 +16,31 @@ export default function PdfUploadBox({
 
     const handleFileUpload = (files: FileList | null) => {
         if (!files) return;
-        const newFiles = Array.from(files);
-        const duplicateFile = newFiles.find(file => pdfs.some(f => f.name === file.name));
+        const newFiles = Array.from(files).filter(file => file.name.endsWith('.rfjson'));
+
+        if (newFiles.length === 0) {
+            setDuplicateFileError("Only .rfjson files are allowed.");
+            setIsFading(false);
+            setTimeout(() => {
+                setIsFading(true);
+                setTimeout(() => setDuplicateFileError(null), 500);
+            }, 3000);
+            return;
+        }
+
+        const duplicateFile = newFiles.find(file => jsonFiles.some(f => f.name === file.name));
         if (duplicateFile) {
             setDuplicateFileError(`File "${duplicateFile.name}" has already been uploaded.`);
             setIsFading(false);
             setTimeout(() => {
                 setIsFading(true);
-                setTimeout(() => setDuplicateFileError(null), 500); // Matches fade duration
+                setTimeout(() => setDuplicateFileError(null), 500);
             }, 3000);
             return;
         }
-        onUpdateFiles([...pdfs, ...newFiles]);
+        onUpdateFiles([...jsonFiles, ...newFiles]);
         setDuplicateFileError(null);
 
-        // If onConvert exists automatically convert PDFs
         if (onConvert) {
             newFiles.forEach(file => {
                 onConvert(file);
@@ -55,15 +65,14 @@ export default function PdfUploadBox({
     };
 
     const handleConvertAll = () => {
-        pdfs.forEach((file) => {
+        jsonFiles.forEach((file) => {
             onConvert?.(file);
         });
         handleRemoveAll();
     };
 
-
     const handleConvert = (fileIndex: number) => {
-        const fileToConvert = pdfs[fileIndex];
+        const fileToConvert = jsonFiles[fileIndex];
         onConvert?.(fileToConvert);
         handleFileRemove(fileIndex);
     };
@@ -73,15 +82,15 @@ export default function PdfUploadBox({
     }
 
     const handleFileRemove = (fileIndex: number) => {
-        const updatedFiles = pdfs.filter((_, index) => index !== fileIndex);
+        const updatedFiles = jsonFiles.filter((_, index) => index !== fileIndex);
         onUpdateFiles(updatedFiles);
     };
 
     return (
         <div className="space-y-4">
             <div className="flex justify-between items-center">
-                <h2 className="text-xl font-semibold">Backflow PDFs</h2>
-                {onConvert && pdfs.length > 0 && (
+                <h2 className="text-xl font-semibold">RFJson Files</h2>
+                {onConvert && jsonFiles.length > 0 && (
                     <div className="flex gap-2">
                         <button
                             type="button"
@@ -123,45 +132,53 @@ export default function PdfUploadBox({
                         id="file-upload"
                         type="file"
                         className="hidden"
-                        accept=".pdf"
+                        accept=".rfjson"
                         multiple
                         onChange={(e) => handleFileUpload(e.target.files)}
                     />
-                    <p className="text-gray-500">or drag and drop .pdf files here</p>
+                    <p className="text-gray-500">or drag and drop .rfjson files here</p>
                 </div>
                 {duplicateFileError && (
-                    <p
-                        className={`text-red-500 text-sm py-2 transition-opacity duration-500 ${
-                            isFading ? 'opacity-0' : 'opacity-100'
+                    <div
+                        className={`text-red-500 transition-opacity duration-500 ${
+                            isFading ? "opacity-0" : "opacity-100"
                         }`}
                     >
                         {duplicateFileError}
-                    </p>
+                    </div>
                 )}
-                {pdfs.map((file, index) => (
-                    <li key={index} className="flex justify-between items-center">
-                        <span>{file.name}</span>
-                        <div className="flex gap-2">
-                            {onConvert && (
+            </div>
+
+            {jsonFiles.length > 0 && (
+                <div className="space-y-2">
+                    {jsonFiles.map((file, index) => (
+                        <div
+                            key={index}
+                            className="flex items-center justify-between p-2 bg-gray-50 rounded"
+                        >
+                            <span className="truncate flex-1">{file.name}</span>
+                            <div className="flex gap-2">
+                                {onConvert && (
+                                    <button
+                                        type="button"
+                                        className="btn btn-warning btn-xs"
+                                        onClick={() => handleConvert(index)}
+                                    >
+                                        <RefreshCcw className="w-3 h-3"/>
+                                    </button>
+                                )}
                                 <button
                                     type="button"
-                                    className="btn btn-warning btn-sm"
-                                    onClick={() => handleConvert(index)}
+                                    className="btn btn-error btn-xs"
+                                    onClick={() => handleFileRemove(index)}
                                 >
-                                    <RefreshCcw className="h-4 w-4"/>
+                                    <Trash2 className="w-3 h-3"/>
                                 </button>
-                            )}
-                            <button
-                                type="button"
-                                className="btn btn-error btn-sm"
-                                onClick={() => handleFileRemove(index)}
-                            >
-                                <Trash2 className="h-4 w-4"/>
-                            </button>
+                            </div>
                         </div>
-                    </li>
-                ))}
-            </div>
+                    ))}
+                </div>
+            )}
         </div>
     );
 }
