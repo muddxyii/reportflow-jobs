@@ -19,22 +19,28 @@ export default function Home() {
                         >
                             Edit Existing RF Job
                         </button>
-                    </div>
-                </div>
-            </div>
-            <div className="card w-96 bg-base-100 shadow-xl">
-                <div className="card-body">
-                    <h1 className="card-title text-2xl font-bold mb-6">PDF Tools</h1>
-                    <div className="space-y-4">
                         <button
-                            className="btn btn-primary w-full"
-                            onClick={() => window.location.href = '/pdf-editor'}
+                            className="btn btn-warning w-full"
+                            onClick={() => window.location.href = '/job-router'}
                         >
-                            Edit PDF
+                            Route RF Jobs
                         </button>
                     </div>
                 </div>
             </div>
+            {/* <div className="card w-96 bg-base-100 shadow-xl">
+    <div className="card-body">
+        <h1 className="card-title text-2xl font-bold mb-6">PDF Tools</h1>
+        <div className="space-y-4">
+            <button
+                className="btn btn-primary w-full"
+                onClick={() => window.location.href = '/pdf-editor'}
+            >
+                Edit PDF
+            </button>
+        </div>
+    </div>
+</div> */}
         </main>
     );
 }
