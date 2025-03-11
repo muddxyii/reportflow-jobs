@@ -1,6 +1,6 @@
 import {JobData} from "@/components/types/job";
 import React from "react";
-import {Trash2} from "lucide-react";
+import {EllipsisVertical} from "lucide-react";
 import OpenLocationCode from "open-location-code-typescript";
 
 export default function JobBox({
@@ -11,6 +11,14 @@ export default function JobBox({
     onRemoveJob: (jobToRemove: JobData) => void;
 }) {
 
+    const [sortedJobs, setSortedJobs] = React.useState<JobData[]>(jobList);
+
+    React.useEffect(() => {
+        const optimizedJobs = optimizeJobOrder(jobList);
+        setSortedJobs(optimizedJobs);
+    }, [jobList]);
+
+
     const getPlusCode = (lat: number, lng: number): string => {
         try {
             return OpenLocationCode.encode(lat, lng);
@@ -19,6 +27,81 @@ export default function JobBox({
             return "";
         }
     };
+
+    function calculateDistance(
+        lat1: number,
+        lon1: number,
+        lat2: number,
+        lon2: number
+    ): number {
+        const R = 6371; // Earth's radius in km
+        const dLat = toRad(lat2 - lat1);
+        const dLon = toRad(lon2 - lon1);
+        const a =
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c;
+    }
+
+    function toRad(degrees: number): number {
+        return degrees * (Math.PI / 180);
+    }
+
+    function optimizeJobOrder(jobs: JobData[]): JobData[] {
+        if (jobs.length <= 1) return jobs;
+
+        const jobsWithCoordinates = jobs.filter(job => {
+            const coords = Object.values(job.backflowList)[0]?.locationInfo?.coordinates;
+            return coords &&
+                coords.latitude !== 0 &&
+                coords.longitude !== 0;
+        });
+
+        const jobsWithoutValidCoords = jobs.filter(job => {
+            const coords = Object.values(job.backflowList)[0]?.locationInfo?.coordinates;
+            return !coords ||
+                (coords.latitude === 0 && coords.longitude === 0);
+        });
+
+        if (jobsWithCoordinates.length <= 1) {
+            return [...jobsWithCoordinates, ...jobsWithoutValidCoords];
+        }
+
+        const unvisited = [...jobsWithCoordinates];
+        const optimizedRoute: JobData[] = [];
+        let currentJob = unvisited.shift()!;
+        optimizedRoute.push(currentJob);
+
+        while (unvisited.length > 0) {
+            let nearestIndex = 0;
+            let shortestDistance = Infinity;
+            const currentCoords = Object.values(currentJob.backflowList)[0]?.locationInfo?.coordinates;
+
+            unvisited.forEach((job, index) => {
+                const jobCoords = Object.values(job.backflowList)[0]?.locationInfo?.coordinates;
+                if (currentCoords && jobCoords) {
+                    const distance = calculateDistance(
+                        currentCoords.latitude,
+                        currentCoords.longitude,
+                        jobCoords.latitude,
+                        jobCoords.longitude
+                    );
+                    if (distance < shortestDistance) {
+                        shortestDistance = distance;
+                        nearestIndex = index;
+                    }
+                }
+            });
+
+            currentJob = unvisited[nearestIndex];
+            optimizedRoute.push(currentJob);
+            unvisited.splice(nearestIndex, 1);
+        }
+
+        return [...optimizedRoute, ...jobsWithoutValidCoords];
+    }
 
     return (
         <>
@@ -29,6 +112,7 @@ export default function JobBox({
                         <table className="table w-full">
                             <thead>
                             <tr className="bg-base-200">
+                                <th className="font-semibold">Order #</th>
                                 <th className="font-semibold">Job Name</th>
                                 <th className="font-semibold">Type</th>
                                 <th className="font-semibold">Plus Code</th>
@@ -36,39 +120,34 @@ export default function JobBox({
                             </tr>
                             </thead>
                             <tbody>
-                            {jobList.map((job, index) => (
-                                <tr
-                                    key={index}
-                                    className={`hover:bg-base-200 border-t border-base-300 ${
-                                        !(Object.values(job.backflowList)[0]?.locationInfo?.coordinates?.longitude)
-                                            ? 'bg-yellow-100'
-                                            : ''
-                                    }`}
-                                >
-                                    <td className="font-medium">{job.details.jobName}</td>
-                                    <td>{job.details.jobType}</td>
-                                    <td>
-                                        {job.backflowList &&
-                                        Object.values(job.backflowList)[0]?.locationInfo?.coordinates?.latitude != 0.0 &&
-                                        Object.values(job.backflowList)[0]?.locationInfo?.coordinates?.longitude != 0.0
-                                            ? getPlusCode(
-                                                Object.values(job.backflowList)[0].locationInfo.coordinates.latitude,
-                                                Object.values(job.backflowList)[0].locationInfo.coordinates.longitude
-                                            )
-                                            : "No coordinates"
-                                        }
-                                    </td>
-                                    <td className="flex gap-2">
-                                        <button
-                                            className="btn btn-square btn-sm btn-error"
-                                            title="Remove job"
-                                            onClick={() => onRemoveJob(job)}
-                                        >
-                                            <Trash2 className="h-4 w-4"/>
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
+                            {sortedJobs.map((job, index) => {
+                                const coords = Object.values(job.backflowList)[0]?.locationInfo?.coordinates;
+                                const hasValidCoordinates = coords &&
+                                    coords.latitude !== 0 &&
+                                    coords.longitude !== 0;
+
+                                return (
+                                    <tr
+                                        key={index}
+                                        className={`hover:bg-base-200 cursor-pointer ${!hasValidCoordinates ? 'bg-warning/20' : ''}`}
+                                    >
+                                        <td>{hasValidCoordinates ? index + 1 : "?"}</td>
+                                        <td>{job.details.jobName}</td>
+                                        <td>{job.details.jobType}</td>
+                                        <td>{hasValidCoordinates ?
+                                            getPlusCode(coords.latitude, coords.longitude) :
+                                            "N/A"}</td>
+                                        <td>
+                                            <button
+                                                // TODO: Make this a more menu with options of removing, setting as start
+                                                onClick={() => onRemoveJob(job)}
+                                                className="btn btn-ghost btn-sm">
+                                                <EllipsisVertical size={18}/>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
                             </tbody>
                         </table>
                     </div>
