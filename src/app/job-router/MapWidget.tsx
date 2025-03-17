@@ -1,3 +1,5 @@
+'use client'
+
 import React from 'react';
 import {MapContainer, Marker, Polyline, Popup, TileLayer} from 'react-leaflet';
 import L, {LatLngBoundsExpression, LatLngExpression, LatLngTuple} from 'leaflet';

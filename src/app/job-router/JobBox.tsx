@@ -1,3 +1,5 @@
+'use client'
+
 import {JobData} from "@/components/types/job";
 import React from "react";
 import {EllipsisVertical, RefreshCw} from "lucide-react";
