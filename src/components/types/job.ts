@@ -41,6 +41,10 @@ export interface BackflowList {
     [key: string]: Backflow;
 }
 
+export const BackflowList = {
+    count: (list: BackflowList) => Object.keys(list).filter(key => key !== "count").length,
+};
+
 export interface JobData {
     metadata: Metadata;
     details: JobDetails;

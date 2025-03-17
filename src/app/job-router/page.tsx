@@ -2,9 +2,28 @@
 
 import React, {useState} from "react";
 import JsonUploadBox from "@/components/json-upload-box";
+import {JobData} from "@/components/types/job";
+import JobBox from "@/app/job-router/JobBox";
 
 export default function JobRouter() {
     const [jsons, setJsons] = useState<File[]>([])
+    const [jobs, setJobs] = useState<JobData[]>([])
+    const [error, setError] = useState<string | null>(null)
+
+    const handleConvertToJob = async (file: File) => {
+        try {
+            const text = await file.text();
+            const jobData = JSON.parse(text) as JobData;
+            setJobs(prevJobs => [...prevJobs, jobData]);
+        } catch (error) {
+            console.error(`Error processing JSON file: ${file.name}`, error);
+            setError(`Failed to process ${file.name}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        }
+    }
+
+    const handleRemoveJob = (jobToRemove: JobData) => {
+        setJobs(currentJobs => currentJobs.filter(job => job !== jobToRemove));
+    };
 
     return (
         <main className="min-h-screen bg-base-300 p-8">
@@ -17,13 +36,16 @@ export default function JobRouter() {
                             </div>
                         </div>
 
-                        <JsonUploadBox jsonFiles={jsons} onUpdateFiles={setJsons}/>
+                        <JsonUploadBox jsonFiles={jsons} onUpdateFiles={setJsons} onConvert={handleConvertToJob}/>
 
-                        <div className="card-actions justify-end">
-                            <button type="submit" className="btn btn-primary">
-                                Optimize Job Route
-                            </button>
-                        </div>
+                        {error && (
+                            <div className="alert alert-error mt-4">
+                                <span>{error}</span>
+                            </div>
+                        )}
+
+                        <JobBox jobList={jobs} onRemoveJob={handleRemoveJob}/>
+
                     </div>
                 </div>
             </div>
