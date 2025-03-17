@@ -2,6 +2,7 @@ import {JobData} from "@/components/types/job";
 import React from "react";
 import {EllipsisVertical, RefreshCw} from "lucide-react";
 import OpenLocationCode from "open-location-code-typescript";
+import MapWidget from "@/app/job-router/MapWidget";
 
 export default function JobBox({
                                    jobList,
@@ -208,6 +209,11 @@ export default function JobBox({
                             </tbody>
                         </table>
                     </div>
+
+                    <div className="mt-4">
+                        <MapWidget jobList={sortedJobs}/>
+                    </div>
+
                 </div>
             )}
         </>
