@@ -1,12 +1,12 @@
-﻿import React, { ChangeEvent } from 'react';
+﻿import React, {ChangeEvent} from 'react';
 
 interface JobTypeSelectorProps {
     selectedJobType: string;
     onChange: (value: string) => void;
 }
 
-const JobTypeSelector: React.FC<JobTypeSelectorProps> = ({ selectedJobType, onChange }) => {
-    const jobTypes = ['New Test', 'Annual Test', 'Repair', 'Replacement'];
+const JobTypeSelector: React.FC<JobTypeSelectorProps> = ({selectedJobType, onChange}) => {
+    const jobTypes = ['New Test', 'Annual Test', 'Service Call', 'Repair', 'Replacement'];
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         onChange(e.target.value);
