@@ -35,10 +35,10 @@ class CheckboxFieldExtractor implements FieldExtractor<string> {
     extract(form: PDFForm, fieldName: string): string {
         try {
             const field = form.getCheckBox(fieldName);
-            return field?.isChecked() ? 'true' : 'false';
+            return field?.isChecked() ? 'true' : '';
         } catch (error) {
             console.warn(`Field "${fieldName}" not found or not accessible: ${error}`);
-            return 'false';
+            return '';
         }
     }
 }
