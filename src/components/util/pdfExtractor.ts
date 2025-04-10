@@ -5,6 +5,42 @@ import {Repairs} from "@/components/types/repairs";
 import {PDFFieldExtractor} from "@/components/util/pdfFieldExtractor";
 import {Backflow} from "@/components/types/job";
 
+function isValidDate(dateString: string): boolean {
+    const regex = /^(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])\/\d{4}$/;
+    if (!regex.test(dateString)) return false;
+
+    const [month, day, year] = dateString.split('/').map(Number);
+    const date = new Date(year, month - 1, day);
+
+    return date.getMonth() === month - 1 &&
+        date.getDate() === day &&
+        date.getFullYear() === year;
+}
+
+function getValidDate(fields: { text: Record<string, string> }): string {
+    const possibleDates = [
+        fields.text.DateFailed,
+        fields.text.DateRepaired,
+        fields.text.DatePassed
+    ];
+
+    for (const date of possibleDates) {
+        if (date && isValidDate(date)) {
+            return date;
+        }
+    }
+
+    return '';
+}
+
+function isWithinLastYear(dateString: string): boolean {
+    const date = new Date(dateString);
+    const oneYearAgo = new Date();
+    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+    return date > oneYearAgo;
+}
+
+
 export const extractCustomerInfo = async (pdf: File) => {
     const customerInfo = CustomerInformation.empty();
 
@@ -71,10 +107,18 @@ export const extractBackflowInfo = async (pdfs: File | File[], jobType: string) 
             });
 
             const serialNo = fields.text.SerialNo || 'Unknown';
+            const keepComments = (() => {
+                const validDate = getValidDate(fields);
+                if (!validDate) return false;
+
+                return isWithinLastYear(validDate);
+            })();
+
+
             backflowList[serialNo] = {
                 locationInfo: extractLocationInfoFromFields(fields),
                 installationInfo: extractInstallationInfoFromFields(fields),
-                deviceInfo: extractDeviceInfoFromFields(fields),
+                deviceInfo: extractDeviceInfoFromFields(fields, keepComments),
                 initialTest: jobType === 'Repair' ? extractInitialTestFromFields(fields) : Test.empty(),
                 repairs: Repairs.empty(),
                 finalTest: Test.empty(),
@@ -113,10 +157,11 @@ const extractInstallationInfoFromFields = (fields: {
 });
 
 const extractDeviceInfoFromFields = (fields: {
-    text: Record<string, string>;
-    dropdown: Record<string, string>;
-    checkbox: Record<string, boolean>;
-}): DeviceInfo => ({
+                                         text: Record<string, string>;
+                                         dropdown: Record<string, string>;
+                                         checkbox: Record<string, boolean>;
+                                     }, keepComments: boolean
+): DeviceInfo => ({
     permitNo: fields.text['PermitAccountNo'] || '',
     meterNo: fields.text['WaterMeterNo'] || '',
     serialNo: fields.text['SerialNo'] || '',
@@ -128,7 +173,7 @@ const extractDeviceInfoFromFields = (fields: {
         status: fields.dropdown['SOVList'] || '',
         comment: fields.text['SOVComment'] || '',
     },
-    oldComments: fields.text['ReportComments'] || '',
+    oldComments: keepComments ? fields.text['ReportComments'] : '',
     comments: '',
 });
 
