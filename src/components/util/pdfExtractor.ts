@@ -1,5 +1,5 @@
 import {CustomerInformation} from "@/components/types/customer";
-import {DeviceInfo, InstallationInfo, LocationInfo} from "@/components/types/backflow-device";
+import {AccessInfo, DeviceInfo, InstallationInfo, LocationInfo} from "@/components/types/backflow-device";
 import {Test} from "@/components/types/testing";
 import {Repairs} from "@/components/types/repairs";
 import {PDFFieldExtractor} from "@/components/util/pdfFieldExtractor";
@@ -87,6 +87,7 @@ export const extractWaterPurveyor = async (pdf: File) => {
 
 export const extractBackflowInfo = async (pdfs: File | File[], jobType: string) => {
     const backflowList: Record<string, {
+        accessInfo: AccessInfo;
         locationInfo: LocationInfo;
         installationInfo: InstallationInfo;
         deviceInfo: DeviceInfo;
@@ -116,6 +117,7 @@ export const extractBackflowInfo = async (pdfs: File | File[], jobType: string) 
 
 
             backflowList[serialNo] = {
+                accessInfo: extractAccessInfoFromFields(fields),
                 locationInfo: extractLocationInfoFromFields(fields),
                 installationInfo: extractInstallationInfoFromFields(fields),
                 deviceInfo: extractDeviceInfoFromFields(fields, keepComments),
@@ -130,6 +132,12 @@ export const extractBackflowInfo = async (pdfs: File | File[], jobType: string) 
 
     return backflowList;
 };
+
+const extractAccessInfoFromFields = (fields: {
+    text: Record<string, string>;
+}): AccessInfo => ({
+    comment: fields.text['AccessComments'] || '', // TODO: UPDATE TO PDF FIELD NAME
+});
 
 const extractLocationInfoFromFields = (fields: {
     text: Record<string, string>;
