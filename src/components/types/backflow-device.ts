@@ -41,6 +41,19 @@ export const InstallationInfo = {
     }
 }
 
+export interface AccessInfo {
+    comment: string;
+}
+
+export const AccessInfo = {
+    empty: (): AccessInfo => ({
+        comment: ""
+    }),
+    textFields: (): string[] => {
+        return ["AccessComment"]; // TODO: UPDATE TO PDF NAME
+    },
+};
+
 export interface DeviceInfo {
     permitNo: string;
     meterNo: string;

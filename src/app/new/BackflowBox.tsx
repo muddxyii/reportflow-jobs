@@ -24,6 +24,7 @@ export default function BackflowBox({
         latitude: '',
         longitude: ''
     });
+    const [accessComment, setAccessComment] = useState('');
 
     const handleCoordinateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const {name, value} = e.target;
@@ -62,6 +63,7 @@ export default function BackflowBox({
             latitude: lat == 0 ? '' : lat.toString(),
             longitude: lng == 0 ? '' : lng.toString(),
         });
+        setAccessComment(backflowList[id].accessInfo?.comment || '');
     };
 
     const handlePasteCoordinates = async () => {
@@ -112,13 +114,14 @@ export default function BackflowBox({
             longitude: ''
         };
 
-        if (!coordinates.latitude) {
-            errors.latitude = 'Latitude is required';
+        // Only validate if one coordinate is provided but not the other
+        if (coordinates.latitude && !coordinates.longitude) {
+            errors.longitude = 'Longitude is required when latitude is provided';
             isValid = false;
         }
 
-        if (!coordinates.longitude) {
-            errors.longitude = 'Longitude is required';
+        if (coordinates.longitude && !coordinates.latitude) {
+            errors.latitude = 'Latitude is required when longitude is provided';
             isValid = false;
         }
 
@@ -182,6 +185,10 @@ export default function BackflowBox({
 
         editingBackflow.locationInfo.coordinates.latitude = parsedLat;
         editingBackflow.locationInfo.coordinates.longitude = parsedLng;
+        if (!editingBackflow.accessInfo) {
+            editingBackflow.accessInfo = { comment: '' };
+        }
+        editingBackflow.accessInfo.comment = accessComment;
 
         const updatedBackflows = {...backflowList};
         updatedBackflows[editingId] = editingBackflow;
@@ -189,6 +196,7 @@ export default function BackflowBox({
         setIsEditModalOpen(false);
         setError("");
         setCoordinateErrors({latitude: '', longitude: ''});
+        setAccessComment('');
     };
 
     const handleCancel = () => {
@@ -197,6 +205,7 @@ export default function BackflowBox({
         setEditingId("");
         setError("");
         setCoordinateErrors({latitude: '', longitude: ''});
+        setAccessComment('');
     };
 
     const handleBackflowRemove = (id: string) => {
@@ -270,7 +279,7 @@ export default function BackflowBox({
                 <div className="modal modal-open">
                     <div className="modal-box">
                         <div className="flex justify-between items-center mb-4">
-                            <h3 className="font-bold text-lg">Edit Backflow Coordinates</h3>
+                            <h3 className="font-bold text-lg">Edit Backflow Information</h3>
                             <button
                                 onClick={handlePasteCoordinates}
                                 className="btn btn-sm btn-ghost gap-2"
@@ -299,7 +308,7 @@ export default function BackflowBox({
                                 className={`input input-bordered w-full ${
                                     coordinateErrors.latitude ? 'input-error' : ''
                                 }`}
-                                placeholder="Enter latitude (-90 to 90)"
+                                placeholder="Enter latitude (-90 to 90) - Optional"
                             />
                             {coordinateErrors.latitude && (
                                 <label className="label">
@@ -320,13 +329,27 @@ export default function BackflowBox({
                                 className={`input input-bordered w-full ${
                                     coordinateErrors.longitude ? 'input-error' : ''
                                 }`}
-                                placeholder="Enter longitude (-180 to 180)"
+                                placeholder="Enter longitude (-180 to 180) - Optional"
                             />
                             {coordinateErrors.longitude && (
                                 <label className="label">
                                     <span className="label-text-alt text-error">{coordinateErrors.longitude}</span>
                                 </label>
                             )}
+                        </div>
+
+                        <div className="form-control w-full mt-4">
+                            <h4 className="text-lg font-semibold mb-2">Access Information</h4>
+                            <label className="label">
+                                <span className="label-text">Access Comment</span>
+                            </label>
+                            <textarea
+                                value={accessComment}
+                                onChange={(e) => setAccessComment(e.target.value.toUpperCase())}
+                                className="textarea textarea-bordered w-full"
+                                placeholder="Enter access information or special instructions..."
+                                rows={3}
+                            />
                         </div>
 
                         {error && (
