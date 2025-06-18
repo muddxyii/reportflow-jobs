@@ -112,7 +112,7 @@ export const extractBackflowInfo = async (pdfs: File | File[], jobType: string) 
 
             // Helper function to process text fields
             const processText = (text: string) => text.toUpperCase().replace(/\s+/g, ' ').trim();
-            
+
             const serialNo = processText(fields.text.SerialNo || 'Unknown');
             const keepComments = (() => {
                 const validDate = getValidDate(fields);
@@ -143,9 +143,9 @@ const extractAccessInfoFromFields = (fields: {
     text: Record<string, string>;
 }): AccessInfo => {
     const processText = (text: string) => text.toUpperCase().replace(/\s+/g, ' ').trim();
-    
+
     return {
-        comment: processText(fields.text['AccessComments'] || ''), // TODO: UPDATE TO PDF FIELD NAME
+        comment: processText(fields.text['IntComment'] || ''),
     };
 };
 
@@ -155,7 +155,7 @@ const extractLocationInfoFromFields = (fields: {
     checkbox: Record<string, boolean>;
 }): LocationInfo => {
     const processText = (text: string) => text.toUpperCase().replace(/\s+/g, ' ').trim();
-    
+
     return {
         assemblyAddress: processText(fields.text['AssemblyAddress'] || ''),
         onSiteLocation: processText(fields.text['On Site Location of Assembly'] || ''),
@@ -173,7 +173,7 @@ const extractInstallationInfoFromFields = (fields: {
     checkbox: Record<string, boolean>;
 }): InstallationInfo => {
     const processText = (text: string) => text.toUpperCase().replace(/\s+/g, ' ').trim();
-    
+
     return {
         status: fields.dropdown['InstallationIs'] === 'REPLACEMENT' ?
             'EXISTING' : processText(fields.dropdown['InstallationIs'] || ''),
@@ -189,7 +189,7 @@ const extractDeviceInfoFromFields = (fields: {
                                      }, keepComments: boolean
 ): DeviceInfo => {
     const processText = (text: string) => text.toUpperCase().replace(/\s+/g, ' ').trim();
-    
+
     return {
         permitNo: processText(fields.text['PermitAccountNo'] || ''),
         meterNo: processText(fields.text['WaterMeterNo'] || ''),
@@ -213,7 +213,7 @@ const extractInitialTestFromFields = (fields: {
     checkbox: Record<string, boolean>;
 }): Test => {
     const processText = (text: string) => text.toUpperCase().replace(/\s+/g, ' ').trim();
-    
+
     return {
         linePressure: processText(fields.text['LinePressure'] || ''),
         checkValve1: {

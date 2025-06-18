@@ -50,7 +50,7 @@ export const AccessInfo = {
         comment: ""
     }),
     textFields: (): string[] => {
-        return ["AccessComment"]; // TODO: UPDATE TO PDF NAME
+        return ["IntComment"];
     },
 };
 
