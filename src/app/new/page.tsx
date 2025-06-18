@@ -37,7 +37,8 @@ export default function NewRFJob() {
         setter: React.Dispatch<React.SetStateAction<T>>
     ) => (e: ChangeEvent<HTMLInputElement>) => {
         const {name, value} = e.target;
-        setter((prev) => ({...prev, [name]: value}));
+        const processedValue = value.toUpperCase().replace(/\s+/g, ' ').trimEnd();
+        setter((prev) => ({...prev, [name]: processedValue}));
     };
 
     const handlePdfConvert = async (pdf: File) => {
@@ -105,7 +106,7 @@ export default function NewRFJob() {
                                     type="text"
                                     name="waterPurveyor"
                                     value={waterPurveyor}
-                                    onChange={(e) => setWaterPurveyor(e.target.value)}
+                                    onChange={(e) => setWaterPurveyor(e.target.value.toUpperCase().replace(/\s+/g, ' ').trimEnd())}
                                     className="input input-bordered"
                                     placeholder="Enter Water Purveyor"
                                     required

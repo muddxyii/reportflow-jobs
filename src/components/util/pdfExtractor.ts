@@ -50,18 +50,21 @@ export const extractCustomerInfo = async (pdf: File) => {
             text: CustomerInformation.textFields(),
         });
 
+        // Helper function to process text fields
+        const processText = (text: string) => text.toUpperCase().replace(/\s+/g, ' ').trim();
+
         // Facility Owner Info
-        customerInfo.facilityOwnerInfo.owner = fields.text.FacilityOwner || '';
-        customerInfo.facilityOwnerInfo.address = fields.text.Address || '';
-        customerInfo.facilityOwnerInfo.email = fields.text.Email || '';
-        customerInfo.facilityOwnerInfo.contact = fields.text.Contact || '';
-        customerInfo.facilityOwnerInfo.phone = fields.text.Phone || '';
+        customerInfo.facilityOwnerInfo.owner = processText(fields.text.FacilityOwner || '');
+        customerInfo.facilityOwnerInfo.address = processText(fields.text.Address || '');
+        customerInfo.facilityOwnerInfo.email = processText(fields.text.Email || '');
+        customerInfo.facilityOwnerInfo.contact = processText(fields.text.Contact || '');
+        customerInfo.facilityOwnerInfo.phone = processText(fields.text.Phone || '');
 
         // Representative Info
-        customerInfo.representativeInfo.owner = fields.text.OwnerRep || '';
-        customerInfo.representativeInfo.address = fields.text.RepAddress || '';
-        customerInfo.representativeInfo.contact = fields.text.PersontoContact || '';
-        customerInfo.representativeInfo.phone = fields.text['Phone-0'] || '';
+        customerInfo.representativeInfo.owner = processText(fields.text.OwnerRep || '');
+        customerInfo.representativeInfo.address = processText(fields.text.RepAddress || '');
+        customerInfo.representativeInfo.contact = processText(fields.text.PersontoContact || '');
+        customerInfo.representativeInfo.phone = processText(fields.text['Phone-0'] || '');
     } catch (error: unknown) {
         console.error(`Error processing ${pdf.name}:`, error);
     }
@@ -77,7 +80,7 @@ export const extractWaterPurveyor = async (pdf: File) => {
         const fields = await extractor.extractFields(pdf, {
             dropdown: ['WaterPurveyor'],
         });
-        waterPurveyor = fields.dropdown.WaterPurveyor || '';
+        waterPurveyor = (fields.dropdown.WaterPurveyor || '').toUpperCase().replace(/\s+/g, ' ').trim();
     } catch (error: unknown) {
         console.error(`Error processing ${pdf.name}:`, error);
     }
@@ -107,7 +110,10 @@ export const extractBackflowInfo = async (pdfs: File | File[], jobType: string) 
                 checkbox: Backflow.checkboxFields(),
             });
 
-            const serialNo = fields.text.SerialNo || 'Unknown';
+            // Helper function to process text fields
+            const processText = (text: string) => text.toUpperCase().replace(/\s+/g, ' ').trim();
+            
+            const serialNo = processText(fields.text.SerialNo || 'Unknown');
             const keepComments = (() => {
                 const validDate = getValidDate(fields);
                 if (!validDate) return false;
@@ -135,91 +141,111 @@ export const extractBackflowInfo = async (pdfs: File | File[], jobType: string) 
 
 const extractAccessInfoFromFields = (fields: {
     text: Record<string, string>;
-}): AccessInfo => ({
-    comment: fields.text['AccessComments'] || '', // TODO: UPDATE TO PDF FIELD NAME
-});
+}): AccessInfo => {
+    const processText = (text: string) => text.toUpperCase().replace(/\s+/g, ' ').trim();
+    
+    return {
+        comment: processText(fields.text['AccessComments'] || ''), // TODO: UPDATE TO PDF FIELD NAME
+    };
+};
 
 const extractLocationInfoFromFields = (fields: {
     text: Record<string, string>;
     dropdown: Record<string, string>;
     checkbox: Record<string, boolean>;
-}): LocationInfo => ({
-    assemblyAddress: fields.text['AssemblyAddress'] || '',
-    onSiteLocation: fields.text['On Site Location of Assembly'] || '',
-    primaryService: fields.text['PrimaryBusinessService'] || '',
-    coordinates: {
-        latitude: fields.text['Latitude'] ? parseFloat(fields.text['Latitude']) : 0,
-        longitude: fields.text['Longitude'] ? parseFloat(fields.text['Longitude']) : 0,
-    },
-});
+}): LocationInfo => {
+    const processText = (text: string) => text.toUpperCase().replace(/\s+/g, ' ').trim();
+    
+    return {
+        assemblyAddress: processText(fields.text['AssemblyAddress'] || ''),
+        onSiteLocation: processText(fields.text['On Site Location of Assembly'] || ''),
+        primaryService: processText(fields.text['PrimaryBusinessService'] || ''),
+        coordinates: {
+            latitude: fields.text['Latitude'] ? parseFloat(fields.text['Latitude']) : 0,
+            longitude: fields.text['Longitude'] ? parseFloat(fields.text['Longitude']) : 0,
+        },
+    };
+};
 
 const extractInstallationInfoFromFields = (fields: {
     text: Record<string, string>;
     dropdown: Record<string, string>;
     checkbox: Record<string, boolean>;
-}): InstallationInfo => ({
-    status: fields.dropdown['InstallationIs'] === 'REPLACEMENT' ?
-        'EXISTING' : (fields.dropdown['InstallationIs'] || ''),
-    protectionType: fields.dropdown['ProtectionType'] || '',
-    serviceType: fields.dropdown['ServiceType'] || ''
-});
+}): InstallationInfo => {
+    const processText = (text: string) => text.toUpperCase().replace(/\s+/g, ' ').trim();
+    
+    return {
+        status: fields.dropdown['InstallationIs'] === 'REPLACEMENT' ?
+            'EXISTING' : processText(fields.dropdown['InstallationIs'] || ''),
+        protectionType: processText(fields.dropdown['ProtectionType'] || ''),
+        serviceType: processText(fields.dropdown['ServiceType'] || '')
+    };
+};
 
 const extractDeviceInfoFromFields = (fields: {
                                          text: Record<string, string>;
                                          dropdown: Record<string, string>;
                                          checkbox: Record<string, boolean>;
                                      }, keepComments: boolean
-): DeviceInfo => ({
-    permitNo: fields.text['PermitAccountNo'] || '',
-    meterNo: fields.text['WaterMeterNo'] || '',
-    serialNo: fields.text['SerialNo'] || '',
-    type: fields.dropdown['BFType'] || '',
-    manufacturer: fields.dropdown['Manufacturer'] || '',
-    size: fields.text['Size'] || '',
-    modelNo: fields.text['ModelNo'] || '',
-    shutoffValves: {
-        status: fields.dropdown['SOVList'] || '',
-        comment: fields.text['SOVComment'] || '',
-    },
-    oldComments: keepComments ? fields.text['ReportComments'] : '',
-    comments: '',
-});
+): DeviceInfo => {
+    const processText = (text: string) => text.toUpperCase().replace(/\s+/g, ' ').trim();
+    
+    return {
+        permitNo: processText(fields.text['PermitAccountNo'] || ''),
+        meterNo: processText(fields.text['WaterMeterNo'] || ''),
+        serialNo: processText(fields.text['SerialNo'] || ''),
+        type: processText(fields.dropdown['BFType'] || ''),
+        manufacturer: processText(fields.dropdown['Manufacturer'] || ''),
+        size: processText(fields.text['Size'] || ''),
+        modelNo: processText(fields.text['ModelNo'] || ''),
+        shutoffValves: {
+            status: processText(fields.dropdown['SOVList'] || ''),
+            comment: processText(fields.text['SOVComment'] || ''),
+        },
+        oldComments: keepComments ? processText(fields.text['ReportComments'] || '') : '',
+        comments: '',
+    };
+};
 
 const extractInitialTestFromFields = (fields: {
     text: Record<string, string>;
     dropdown: Record<string, string>;
     checkbox: Record<string, boolean>;
-}): Test => ({
-    linePressure: fields.text['LinePressure'] || '',
-    checkValve1: {
-        value: fields.text['InitialCT1'] || '',
-        closedTight: Boolean(fields.checkbox['InitialCTBox']),
-    },
-    checkValve2: {
-        value: fields.text['InitialCT2'] || '',
-        closedTight: Boolean(fields.checkbox['InitialCT2Box']),
-    },
-    reliefValve: {
-        value: fields.text['InitialPSIRV'] || '',
-        opened: !Boolean(fields.checkbox['InitialRVDidNotOpen']),
-        leaking: Boolean(false),
-    },
-    vacuumBreaker: {
-        backPressure: Boolean(fields.dropdown['BackPressure'] === 'YES'),
-        airInlet: {
-            value: fields.text['InitialAirInlet'] || '',
-            leaked: Boolean(fields.checkbox['InitialAirInletLeaked']),
-            opened: Boolean(fields.checkbox['InitialCkPVBLDidNotOpen']),
+}): Test => {
+    const processText = (text: string) => text.toUpperCase().replace(/\s+/g, ' ').trim();
+    
+    return {
+        linePressure: processText(fields.text['LinePressure'] || ''),
+        checkValve1: {
+            value: processText(fields.text['InitialCT1'] || ''),
+            closedTight: Boolean(fields.checkbox['InitialCTBox']),
         },
-        check: {
-            value: fields.text['InitialCk1PVB'] || '',
-            leaked: Boolean(fields.checkbox['InitialCkPVBLeaked']),
+        checkValve2: {
+            value: processText(fields.text['InitialCT2'] || ''),
+            closedTight: Boolean(fields.checkbox['InitialCT2Box']),
         },
-    },
-    testerProfile: {
-        name: fields.dropdown['InitialTester'] || '',
-        certNo: fields.dropdown['InitialTesterNo'] || '',
-        gaugeKit: fields.dropdown['InitialTestKitSerial'] || '',
-        date: fields.text['DateFailed'] || '',
-    }
-});
+        reliefValve: {
+            value: processText(fields.text['InitialPSIRV'] || ''),
+            opened: !Boolean(fields.checkbox['InitialRVDidNotOpen']),
+            leaking: Boolean(false),
+        },
+        vacuumBreaker: {
+            backPressure: Boolean(fields.dropdown['BackPressure'] === 'YES'),
+            airInlet: {
+                value: processText(fields.text['InitialAirInlet'] || ''),
+                leaked: Boolean(fields.checkbox['InitialAirInletLeaked']),
+                opened: Boolean(fields.checkbox['InitialCkPVBLDidNotOpen']),
+            },
+            check: {
+                value: processText(fields.text['InitialCk1PVB'] || ''),
+                leaked: Boolean(fields.checkbox['InitialCkPVBLeaked']),
+            },
+        },
+        testerProfile: {
+            name: processText(fields.dropdown['InitialTester'] || ''),
+            certNo: processText(fields.dropdown['InitialTesterNo'] || ''),
+            gaugeKit: processText(fields.dropdown['InitialTestKitSerial'] || ''),
+            date: fields.text['DateFailed'] || '',
+        }
+    };
+};
