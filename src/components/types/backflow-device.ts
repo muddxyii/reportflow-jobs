@@ -86,7 +86,7 @@ export const DeviceInfo = {
         };
     },
     textFields(): string[] {
-        return ['SerialNo', 'WaterMeterNo', 'Size', 'ModelNo', 'SOVComment', 'ReportComments'];
+        return ['SerialNo', 'WaterMeterNo', 'PermitAccountNo', 'Size', 'ModelNo', 'SOVComment', 'ReportComments'];
     },
     dropdownFields(): string[] {
         return ['BFType', 'Manufacturer', 'SOVList'];
